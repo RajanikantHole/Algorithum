@@ -3,5 +3,7 @@
     <pages>
         <page name='rotate array'/>
         <page name='findLongestCommansubseqyence'/>
+        <page name='Find k th emelnt'/>
+        <page name='bubbleSort'/>
     </pages>
 </playground>

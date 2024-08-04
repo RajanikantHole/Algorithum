@@ -9,7 +9,7 @@ for i in 0 ..< k {
     arr1.append(temp)
 }
 
-print(" arr1 \(arr1)")
+//print(" arr1 \(arr1)")
 
 for i in 0 ..< arr1.count - 1{
     arr1[i] =  arr1[i + 1]

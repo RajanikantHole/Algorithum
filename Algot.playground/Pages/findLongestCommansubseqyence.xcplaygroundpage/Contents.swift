@@ -20,3 +20,4 @@ let strArr2 = Array(string2)
 
 let res = findLongestCommansubseqyence(char1: strArr1, char2: strArr2, index1: 0, index2: 0)
 //print(" res \(res)")
+
