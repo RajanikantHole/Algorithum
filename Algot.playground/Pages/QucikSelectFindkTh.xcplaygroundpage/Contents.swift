@@ -1,47 +1,37 @@
 
-
-func partion(arr: inout [Int], low: Int, high: Int ) -> Int {
-    
+func partition(arr: inout [Int], low: Int, high: Int) -> Int {
     let pivot = arr[high]
     var i = low
-    for j in low ..< high {
-        
-        if arr[j] <= pivot {
-            arr.swapAt(j, j)
-            i = i + 1
+    for j in low..<high {
+        if arr[j] < pivot {
+            arr.swapAt(i, j)
+            i += 1
+            print("true i \(i)")
         }
     }
     arr.swapAt(i, high)
-    
+    print("partition \(i)")
     return i
 }
 
-
-func findSmallest(arr: inout [Int], low: Int, high: Int, k: Int) -> Int {
-    
+func findKthSmallest(arr: inout [Int], low: Int, high: Int, k: Int) -> Int {
     if low == high {
         return arr[low]
     }
     
-    
-    let pivotIndex = partion(arr: &arr, low: low, high: high)
+    let pivotIndex = partition(arr: &arr, low: low, high: high)
     
     if k == pivotIndex {
         return arr[pivotIndex]
     } else if k < pivotIndex {
-        return findSmallest(arr:  &arr, low: low, high: pivotIndex - 1, k: k)
+        return findKthSmallest(arr: &arr, low: low, high: pivotIndex - 1, k: k)
     } else {
-        return  findSmallest(arr:  &arr, low: pivotIndex + 1, high: high, k: k)
+        return findKthSmallest(arr: &arr, low: pivotIndex + 1, high: high, k: k)
     }
-     
-    
 }
 
+var arr = [10, 2, 1, 5, 9,4,3]
+let k = 2
 
-var arr = [2,3,10,4,5,12,45,34,22,32]
-
-let k = 3
-
-let kthLargest = findSmallest(arr: &arr, low: 0, high: arr.count - 1, k: k)
-
-print("kthLargest \(kthLargest)")
+let kthSmallest = findKthSmallest(arr: &arr, low: 0, high: arr.count - 1, k: k-1)
+print("The \(k)th smallest element is \(kthSmallest)")
