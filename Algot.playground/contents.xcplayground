@@ -12,5 +12,6 @@
         <page name='slide prac'/>
         <page name='Stringreplace'/>
         <page name='commanThreeArray'/>
+        <page name='makeSingleArray'/>
     </pages>
 </playground>
