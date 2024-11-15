@@ -8,5 +8,9 @@
         <page name='QucikSelectFindkTh'/>
         <page name='dpREcursion'/>
         <page name='sum ofNumers'/>
+        <page name='slide'/>
+        <page name='slide prac'/>
+        <page name='Stringreplace'/>
+        <page name='commanThreeArray'/>
     </pages>
 </playground>
