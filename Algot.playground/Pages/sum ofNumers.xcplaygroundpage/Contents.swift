@@ -1,5 +1,4 @@
 
-import SwiftUI
 
 var tempRes = [[Int]]()
 let teageSum = 10

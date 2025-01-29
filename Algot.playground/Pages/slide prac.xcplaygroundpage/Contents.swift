@@ -31,9 +31,9 @@ func logestSubStringCountNonRepeating(s: String)  {
     }
     
     
-  //  print("max\(maxLenght)")
+   print("max\(maxLenght)")
 }
          
           
           
-logestSubStringCountNonRepeating(s: "pwwkew")
+logestSubStringCountNonRepeating(s: "pwwkewppppa")

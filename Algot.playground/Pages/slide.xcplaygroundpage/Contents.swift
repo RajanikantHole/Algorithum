@@ -24,5 +24,5 @@ func longestSubstringWithoutRepeatingCharacters(_ s: String) -> (length: Int, su
 }
 
 // Example usage
-let result = longestSubstringWithoutRepeatingCharacters("pwwkew")
+let result = longestSubstringWithoutRepeatingCharacters("pwwkewp")
 //print("Length: \(result.length), Substring: \(result.substring)")
