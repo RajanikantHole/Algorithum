@@ -1,0 +1,67 @@
+import SwiftUI
+
+struct ContentView1: View {
+    @State private var selectedSegment: Int = 0
+
+        var body: some View {
+            VStack {
+                // iOS Segmented Control with Increased Height
+                Picker("Options", selection: $selectedSegment) {
+                    Text("First").tag(0)
+                        .padding(.horizontal, 100)
+                    Text("Second").tag(1)
+                       .padding(.horizontal, 20)
+                }
+                .pickerStyle(SegmentedPickerStyle())
+               .padding()
+//                .padding()
+                       .frame(maxWidth: .infinity, minHeight: 60) // Adjust width and height
+                       .scaleEffect(CGSize(width: 1.2, height: 1.5)) // Adjust scale for width and height
+                       .padding()
+                       .padding(.horizontal, 34) // Add left and right padding of 20
+
+                // Page View
+                if selectedSegment == 0 {
+                    FirstPageView()
+                } else {
+                    SecondPageView()
+                }
+            }
+            .padding(30)
+        }
+    }
+
+struct FirstPageView: View {
+    let pages = ["Page 1", "Page 2"]
+
+    var body: some View {
+       // TabView {
+            ForEach(pages, id: \.self) { page in
+                Text(page)
+                    .font(.largeTitle)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.blue.opacity(0.1))
+            }
+//        }
+//        .tabViewStyle(PageTabViewStyle())
+//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+    }
+}
+
+struct SecondPageView: View {
+    let pages = ["Page A", "Page B"]
+
+    var body: some View {
+     //   TabView {
+            //ForEach(pages, id: \.self) { page in
+                Text("page")
+                    .font(.largeTitle)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.green.opacity(0.1))
+            //}
+//        }
+//        .tabViewStyle(PageTabViewStyle())
+//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+    }
+}
+
