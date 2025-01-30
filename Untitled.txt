@@ -1,142 +1,22 @@
-imp SwiftUI
-teetet
-struct ContentView1: View {
-    @State private var selectedSegment: Int = 0
+import SwiftUI
 
-        var body: some View {
-            VStack {
-                // iOS Segmented Control with Increased Height
-                Picker("Options", selection: $selectedSegment) {
-                    Text("First").tag(0)
-                        .padding(.horizontal, 100)
-                    Text("Second").tag(1)
-                       .padding(.horizontal, 20)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-               .padding()
-//                .padding()
-                       .frame(maxWidth: .infinity, minHeight: 60) // Adjust width and height
-                       .scaleEffect(CGSize(width: 1.2, height: 1.5)) // Adjust scale for width and height
-                       .padding()
-                       .padding(.horizontal, 34) // Add left and right padding of 20
+struct ContentView: View {
+    @State private var selection = 0
 
-                // Page View
-                if selectedSegment == 0 {
-                    FirstPageView()
-                } else {
-                    ContentView2()
-                       
-                }
-            }
-            .padding(30)
+    init() {
+        UISegmentedControl.appearance().setDividerImage(
+            UIImage(), // Empty image removes divider
+            forLeftSegmentState: .normal,
+            rightSegmentState: .normal,
+            barMetrics: .default
+        )
+    }
+
+    var body: some View {
+        Picker("Options", selection: $selection) {
+            Text("One").tag(0)
+            Text("Two").tag(1)
         }
-    }
-
-struct FirstPageView: View {
-    let pages = ["Page 1", "Page 2"]
-
-    var body: some View {
-       // TabView {
-            ForEach(pages, id: \.self) { page in
-                Text(page)
-                    .font(.largeTitle)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.blue.opacity(0.1))
-            }
-//        }
-//        .tabViewStyle(PageTabViewStyle())
-//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+        .pickerStyle(.segmented)
     }
 }
-
-struct SecondPageView: View {
-    let pages = ["Page A", "Page B"]
-
-    var body: some View {
-     //   TabView {
-            //ForEach(pages, id: \.self) { page in
-                Text("page")
-                    .font(.largeTitle)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.green.opacity(0.1))
-            //}
-//        }
-//        .tabViewStyle(PageTabViewStyle())
-//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-    }
-}
-
-
-
-
-
-
-struct MyItem {
-    var title: String
-    var subtitle: String
-    var description: String
-}
-
-struct CustomCellView: View {
-    var item: MyItem
-    
-    var body: some View {
-            VStack(alignment: .leading) {
-//                Text(item.title)
-//                    .font(.headline)
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .leading)
-// 
-//                    .padding(.leading, 22)
-                
-                HStack {
-                               Text(item.title)
-                                   .font(.headline)
-                                   .padding(.bottom, 2)
-                                   .frame(maxWidth: .infinity, alignment: .leading)
-                               
-                               // New label beside the title with a fixed width
-                               Text("Fixed")
-                                   .font(.subheadline)
-                                   .foregroundColor(.blue)  // Adjust the color as needed
-                                   .frame(width: 100, alignment: .trailing)  // Fixed width of 100 points
-                                   .padding(.trailing, 20)
-                           }
-                
-                Text(item.subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                  //  .padding(.leading, 2)
-                
-                Text(item.description)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-       
-            }
-            .frame(maxWidth: .infinity)
-            .background(.yellow)
-            .padding(.trailing, 5)
-          //  .padding(20) // Add 20 points of padding inside the VStack
-                     .padding(.leading, 5) // Add 5 points of padding from the left
-     //   .background(RoundedRectangle(cornerRadius: 8).fill(Color.white).shadow(radius: 58))
-    }
-}
-
-struct ContentView2: View {
-    let items = [
-        MyItem(title: "Item 1", subtitle: "Subtitle 1", description: "This is the description for item 1."),
-        MyItem(title: "Item 2", subtitle: "Subtitle 2", description: "This is the description for item 2."),
-        MyItem(title: "Item 3", subtitle: "Subtitle 3", description: "This is the description for item 3.")
-    ]
-    
-    var body: some View {
-        //NavigationView {
-        List(items, id: \.title) { item in
-                        CustomCellView(item: item)
-                            .listRowInsets(EdgeInsets()) // Remove spacing between rows
-                            .listRowSeparator(.hidden) // Hide separator
-                    }
-                    .listStyle(PlainListStyle())
-                    .background(.red)
-    }
-}
-
