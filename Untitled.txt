@@ -1,22 +1,78 @@
 import SwiftUI
 
-struct ContentView: View {
-    @State private var selection = 0
-
-    init() {
-        UISegmentedControl.appearance().setDividerImage(
-            UIImage(), // Empty image removes divider
-            forLeftSegmentState: .normal,
-            rightSegmentState: .normal,
-            barMetrics: .default
-        )
+struct DynamicSegmentedControlView: View {
+    // The options array is passed via the constructor
+    let options: [String]
+    
+    // State to track the selected index
+    @State private var selectedIndex = 0
+    
+    // Callback closure to handle option selection
+    var onOptionSelected: (String) -> Void
+    
+    // Initializer to accept options and the callback closure
+    init(options: [String], onOptionSelected: @escaping (String) -> Void) {
+        self.options = options
+        self.onOptionSelected = onOptionSelected
+        // Default the selected index to the first item, if available
+        _selectedIndex = State(initialValue: options.isEmpty ? 0 : 0)
     }
-
+    
     var body: some View {
-        Picker("Options", selection: $selection) {
-            Text("One").tag(0)
-            Text("Two").tag(1)
+        VStack {
+            if !options.isEmpty {
+                Picker("Options", selection: $selectedIndex) {
+                    ForEach(0..<options.count, id: \.self) { index in
+                        Text(options[index])
+                            .tag(index) // Ensure proper binding with index tag
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle()) // Apply SegmentedPickerStyle
+                .padding()
+                .onChange(of: selectedIndex) { newIndex in
+                    // When the selection changes, invoke the callback with the selected option
+                    onOptionSelected(options[newIndex])
+                }
+            } else {
+                Text("No options available.")
+                    .padding()
+            }
+
+            // Action or view that depends on the selected index
+            Text("Selected: \(options[selectedIndex])")
+                .font(.headline)
+                .padding()
         }
-        .pickerStyle(.segmented)
+    }
+}
+
+struct ContentView: View {
+    @State private var dynamicOptions: [String] = ["Option 1", "Option 2", "Option 3"]
+    
+    var body: some View {
+        VStack {
+            // Pass the options as a binding and also the callback closure
+            DynamicSegmentedControlView(options: dynamicOptions) { selectedOption in
+                handleOptionSelection(option: selectedOption)
+            }
+            
+            // Button to add a new option dynamically
+            Button("Add New Option") {
+                dynamicOptions.append("Option \(dynamicOptions.count + 1)")
+            }
+            .padding()
+        }
+    }
+    
+    // Function to handle option selection in the parent view
+    func handleOptionSelection(option: String) {
+        print("Selected option: \(option)")
+        // Perform any actions here, like updating state, making network requests, etc.
+    }
+}
+
+struct DynamicSegmentedControlView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }
