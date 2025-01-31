@@ -1,3 +1,6 @@
+
+https://medium.com/ios-app%E9%96%8B%E7%99%BC%E4%B9%8B%E4%B8%96%E7%95%8C%E9%80%99%E9%BA%BC%E5%A4%A7/how-to-custom-uisegmentcontrol-71ac2bd69499
+
 import SwiftUI
 
 struct SegmentedControlView: View {
