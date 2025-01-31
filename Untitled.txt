@@ -1,32 +1,42 @@
-
-https://medium.com/ios-app%E9%96%8B%E7%99%BC%E4%B9%8B%E4%B8%96%E7%95%8C%E9%80%99%E9%BA%BC%E5%A4%A7/how-to-custom-uisegmentcontrol-71ac2bd69499
-
 import SwiftUI
 
-struct SegmentedControlView: View {
-    @State private var selectedSegment = 0
-    let segments = ["First", "Second", "Third"]
+struct CustomSegmentedControl: View {
+    @Binding var selectedIndex: Int
+    let items: [String]
+    let cornerRadius: CGFloat
+    let height: CGFloat
 
     var body: some View {
-        Picker("Segments", selection: $selectedSegment) {
-            ForEach(0..<segments.count, id: \.self) { index in
-                Text(segments[index]).tag(index)
+        HStack {
+            ForEach(0..<items.count, id: \.self) { index in
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: height)
+                    Text(items[index])
+                        .foregroundColor(Color.black)
+                }
+                .onTapGesture {
+                    selectedIndex = index
+                }
             }
         }
-        .pickerStyle(SegmentedPickerStyle())
-        .frame(height: 70)
     }
 }
 
 struct ContentView: View {
-    var body: some View {
-        SegmentedControlView()
-            .padding()
-    }
-}
+    @State private var selectedIndex = 0
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+    var body: some View {
+        VStack {
+            CustomSegmentedControl(
+                selectedIndex: $selectedIndex,
+                items: ["Option 1", "Option 2", "Option 3"],
+                cornerRadius: 10,
+                height: 40
+            )
+            Spacer()
+        }
+        .padding()
     }
 }
