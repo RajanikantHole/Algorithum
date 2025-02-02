@@ -1,12 +1,29 @@
-   var body: some View {
-        List {
-            ForEach(items, id: \.0) { item in
-                CustomCell(title: item.0, subtitle: item.1)
-                    .listRowInsets(EdgeInsets()) // Removes default padding
-                    .listRowSeparator(.hidden) // Removes default separator
-                    .background(Color.clear) // Avoids background color issues
+import SwiftUI
+
+struct ContentView: View {
+    let items: [(String, Int)] = [
+        ("Apple", 10),
+        ("Banana", 5),
+        ("Orange", 8)
+    ]
+
+    var body: some View {
+        List(0..<items.count, id: \.self) { index in
+            HStack {
+                Text(items[index].0) // Access tuple's first value (name)
+                    .font(.headline)
+                Spacer()
+                Text("\(items[index].1)") // Access tuple's second value (count)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
             }
+            .padding()
         }
-        .listStyle(.plain) // Removes extra padding
-        .background(Color.gray.opacity(0.2)) // Background color for better visibility
     }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
