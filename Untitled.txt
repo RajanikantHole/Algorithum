@@ -1,24 +1,72 @@
 import SwiftUI
+import UIKit
 
-struct ContentView: View {
-    let items: [(String, Int)] = [
-        ("Apple", 10),
-        ("Banana", 5),
-        ("Orange", 8)
-    ]
+// UIViewRepresentable to wrap UISegmentedControl
+struct SegmentedControlWrapper: UIViewRepresentable {
+    var segments: [String]
+    var selectedIndex: Binding<Int>
+    var onSegmentChanged: (Int) -> Void // Closure callback when segment changes
+    
+    func makeUIView(context: Context) -> UISegmentedControl {
+        let segmentedControl = UISegmentedControl(items: segments)
+        segmentedControl.addTarget(context.coordinator, action: #selector(Coordinator.segmentChanged), for: .valueChanged)
+        return segmentedControl
+    }
 
-    var body: some View {
-        List(0..<items.count, id: \.self) { index in
-            HStack {
-                Text(items[index].0) // Access tuple's first value (name)
-                    .font(.headline)
-                Spacer()
-                Text("\(items[index].1)") // Access tuple's second value (count)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-            .padding()
+    func updateUIView(_ uiView: UISegmentedControl, context: Context) {
+        uiView.selectedSegmentIndex = selectedIndex.wrappedValue
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(selectedIndex: $selectedIndex, onSegmentChanged: onSegmentChanged)
+    }
+
+    // Coordinator to handle actions
+    class Coordinator: NSObject {
+        var selectedIndex: Binding<Int>
+        var onSegmentChanged: (Int) -> Void
+
+        init(selectedIndex: Binding<Int>, onSegmentChanged: @escaping (Int) -> Void) {
+            self.selectedIndex = selectedIndex
+            self.onSegmentChanged = onSegmentChanged
         }
+
+        @objc func segmentChanged(sender: UISegmentedControl) {
+            selectedIndex.wrappedValue = sender.selectedSegmentIndex
+            onSegmentChanged(sender.selectedSegmentIndex) // Trigger the closure when the segment changes
+        }
+    }
+}
+
+// SwiftUI View using the custom SegmentedControlWrapper
+struct ContentView: View {
+    @State private var selectedSegment = 0
+    let segments = ["First", "Second", "Third"]
+    
+    var body: some View {
+        VStack {
+            SegmentedControlWrapper(
+                segments: segments,
+                selectedIndex: $selectedSegment,
+                onSegmentChanged: { selectedIndex in
+                    print("Selected Segment Index: \(selectedIndex)")
+                    // Handle additional actions when a segment is selected
+                    if selectedIndex == 0 {
+                        print("First segment tapped")
+                    } else if selectedIndex == 1 {
+                        print("Second segment tapped")
+                    } else {
+                        print("Third segment tapped")
+                    }
+                }
+            )
+            .frame(height: 50) // Customize the height as needed
+
+            Text("Selected: \(segments[selectedSegment])")
+                .font(.title)
+                .padding()
+        }
+        .padding()
     }
 }
 
