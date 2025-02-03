@@ -1,20 +1,19 @@
-import SwiftUI
-
-struct RoundedContainer<Content: View>: View {
-    var color: Color
-    var cornerRadius: CGFloat
-    var content: Content
-
-    init(color: Color, cornerRadius: CGFloat, @ViewBuilder content: () -> Content) {
-        self.color = color
-        self.cornerRadius = cornerRadius
-        self.content = content()
-    }
-
+struct ContentView: View {
     var body: some View {
-        content
-            .padding()
-            .background(color)
-            .cornerRadius(cornerRadius)
+        VStack {
+            RoundedContainer(color: .blue, cornerRadius: 12) {
+                Text("Hello, SwiftUI!")
+                    .foregroundColor(.white)
+            }
+            
+            RoundedContainer(color: .red, cornerRadius: 20) {
+                VStack {
+                    Image(systemName: "star.fill")
+                    Text("Star")
+                }
+                .foregroundColor(.white)
+            }
+        }
+        .padding()
     }
 }
