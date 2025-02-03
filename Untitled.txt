@@ -1,19 +1,40 @@
+import SwiftUI
+
 struct ContentView: View {
+    let items = ["Swift", "SwiftUI", "iOS", "Xcode"]
+
     var body: some View {
         VStack {
-            RoundedContainer(color: .blue, cornerRadius: 12) {
-                Text("Hello, SwiftUI!")
-                    .foregroundColor(.white)
-            }
-            
-            RoundedContainer(color: .red, cornerRadius: 20) {
-                VStack {
-                    Image(systemName: "star.fill")
-                    Text("Star")
+            CardView {
+                List(items, id: \.self) { item in
+                    Text(item)
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .padding(.vertical, 5)
                 }
-                .foregroundColor(.white)
+                .listStyle(.plain)
+                .frame(maxHeight: 300) // Adjust height if needed
             }
         }
         .padding()
+        .background(Color.gray.opacity(0.1)) // Background outside card
+    }
+}
+
+struct CardView<Content: View>: View {
+    var content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        content
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(radius: 3)
+            .padding()
     }
 }
