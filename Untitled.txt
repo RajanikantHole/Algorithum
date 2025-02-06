@@ -1,40 +1,27 @@
-import SwiftUI
-
-struct ContentView: View {
-    let items = ["Swift", "SwiftUI", "iOS", "Xcode"]
+struct DynamicHeightView: View {
+    let text1: String
+    let text2: String
 
     var body: some View {
         VStack {
-            CardView {
-                List(items, id: \.self) { item in
-                    Text(item)
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .padding(.vertical, 5)
-                }
-                .listStyle(.plain)
-                .frame(maxHeight: 300) // Adjust height if needed
-            }
+            Text(text1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(text2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
-        .background(Color.gray.opacity(0.1)) // Background outside card
     }
 }
 
-struct CardView<Content: View>: View {
-    var content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
+struct ContentView: View {
     var body: some View {
-        content
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(radius: 3)
-            .padding()
+        DynamicHeightView(
+            text1: "This is the first text. It can be long and should wrap properly.",
+            text2: "This is the second text. It will also expand dynamically based on its content."
+        )
+        .padding()
     }
 }
