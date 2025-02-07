@@ -1,27 +1,31 @@
-struct DynamicHeightView: View {
-    let text1: String
-    let text2: String
+import SwiftUI
+
+struct Checkbox: View {
+    @Binding var isChecked: Bool
 
     var body: some View {
-        VStack {
-            Text(text1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text(text2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+        Button(action: {
+            isChecked.toggle()
+        }) {
+            Image(systemName: isChecked ? "checkmark.square.fill" : "square")
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundColor(isChecked ? .blue : .gray)
         }
-        .padding()
+        .buttonStyle(PlainButtonStyle()) // Removes button styling
     }
 }
 
+
+
 struct ContentView: View {
+    @State private var isChecked = false
+
     var body: some View {
-        DynamicHeightView(
-            text1: "This is the first text. It can be long and should wrap properly.",
-            text2: "This is the second text. It will also expand dynamically based on its content."
-        )
+        VStack {
+            Checkbox(isChecked: $isChecked)
+            Text(isChecked ? "Selected" : "Unselected")
+        }
         .padding()
     }
 }
