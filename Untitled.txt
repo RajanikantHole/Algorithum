@@ -1,63 +1,62 @@
 import SwiftUI
 
-struct CheckboxRow: View {
-    @Binding var item: CheckboxItem
-
+struct RadioButtonListView: View {
+    @State private var items = [
+        RadioButtonItem(title: "Option 1"),
+        RadioButtonItem(title: "Option 2"),
+        RadioButtonItem(title: "Option 3"),
+        RadioButtonItem(title: "Option 4")
+    ]
+    
+    @State private var selectedItem: String? = nil
+    @State private var displayedSelection: String? = nil
+    
     var body: some View {
-        HStack {
-            Button(action: {
-                item.isChecked.toggle()
-            }) {
-                Image(systemName: item.isChecked ? "checkmark.square.fill" : "square")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(item.isChecked ? .blue : .gray)
+        VStack {
+            // Radio Button List
+            ForEach(items) { item in
+                Button(action: {
+                    selectedItem = item.title
+                }) {
+                    HStack {
+                        Image(systemName: selectedItem == item.title ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(selectedItem == item.title ? .blue : .gray)
+                        
+                        Text(item.title)
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                    }
+                    .padding()
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            .buttonStyle(PlainButtonStyle()) // Removes default button styling
+            
+            Spacer().frame(height: 20)
 
-            Text(item.title)
-                .font(.body)
+            // External Button to Show Selected Option
+            Button(action: {
+                displayedSelection = selectedItem
+            }) {
+                Text("Show Selected")
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.green)
+                    .cornerRadius(8)
+            }
+            .buttonStyle(PlainButtonStyle())
 
-            Spacer()
+            // Display selected option
+            if let displayedSelection = displayedSelection {
+                Text("Selected: \(displayedSelection)")
+                    .padding()
+            }
         }
-        .padding(.vertical, 4)
-    }
-}
-
-
-struct CheckboxListView: View {
-    @State private var items = [
-        CheckboxItem(title: "Option 1", isChecked: false),
-        CheckboxItem(title: "Option 2", isChecked: false),
-        CheckboxItem(title: "Option 3", isChecked: true)
-    ]
-
-    var body: some View {
-        List($items) { $item in
-            CheckboxRow(item: $item)
-        }
-    }
-}
-
-
-
-struct CheckboxListView: View {
-    @State private var items = [
-        CheckboxItem(title: "Option 1", isChecked: false),
-        CheckboxItem(title: "Option 2", isChecked: false),
-        CheckboxItem(title: "Option 3", isChecked: true)
-    ]
-
-    var body: some View {
-        List($items) { $item in
-            CheckboxRow(item: $item)
-        }
+        .padding()
     }
 
-
-
-struct CheckboxItem: Identifiable {
+struct RadioButtonItem: Identifiable {
     let id = UUID()
     let title: String
-    var isChecked: Bool
 }
