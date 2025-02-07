@@ -1,31 +1,63 @@
 import SwiftUI
 
-struct Checkbox: View {
-    @Binding var isChecked: Bool
+struct CheckboxRow: View {
+    @Binding var item: CheckboxItem
 
     var body: some View {
-        Button(action: {
-            isChecked.toggle()
-        }) {
-            Image(systemName: isChecked ? "checkmark.square.fill" : "square")
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundColor(isChecked ? .blue : .gray)
+        HStack {
+            Button(action: {
+                item.isChecked.toggle()
+            }) {
+                Image(systemName: item.isChecked ? "checkmark.square.fill" : "square")
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(item.isChecked ? .blue : .gray)
+            }
+            .buttonStyle(PlainButtonStyle()) // Removes default button styling
+
+            Text(item.title)
+                .font(.body)
+
+            Spacer()
         }
-        .buttonStyle(PlainButtonStyle()) // Removes button styling
+        .padding(.vertical, 4)
+    }
+}
+
+
+struct CheckboxListView: View {
+    @State private var items = [
+        CheckboxItem(title: "Option 1", isChecked: false),
+        CheckboxItem(title: "Option 2", isChecked: false),
+        CheckboxItem(title: "Option 3", isChecked: true)
+    ]
+
+    var body: some View {
+        List($items) { $item in
+            CheckboxRow(item: $item)
+        }
     }
 }
 
 
 
-struct ContentView: View {
-    @State private var isChecked = false
+struct CheckboxListView: View {
+    @State private var items = [
+        CheckboxItem(title: "Option 1", isChecked: false),
+        CheckboxItem(title: "Option 2", isChecked: false),
+        CheckboxItem(title: "Option 3", isChecked: true)
+    ]
 
     var body: some View {
-        VStack {
-            Checkbox(isChecked: $isChecked)
-            Text(isChecked ? "Selected" : "Unselected")
+        List($items) { $item in
+            CheckboxRow(item: $item)
         }
-        .padding()
     }
+
+
+
+struct CheckboxItem: Identifiable {
+    let id = UUID()
+    let title: String
+    var isChecked: Bool
 }
