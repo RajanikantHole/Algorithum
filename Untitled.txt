@@ -1,62 +1,27 @@
-import SwiftUI
+struct ContentView: View {
+    @State private var isLarge = false
 
-struct RadioButtonListView: View {
-    @State private var items = [
-        RadioButtonItem(title: "Option 1"),
-        RadioButtonItem(title: "Option 2"),
-        RadioButtonItem(title: "Option 3"),
-        RadioButtonItem(title: "Option 4")
-    ]
-    
-    @State private var selectedItem: String? = nil
-    @State private var displayedSelection: String? = nil
-    
     var body: some View {
-        VStack {
-            // Radio Button List
-            ForEach(items) { item in
-                Button(action: {
-                    selectedItem = item.title
-                }) {
-                    HStack {
-                        Image(systemName: selectedItem == item.title ? "largecircle.fill.circle" : "circle")
-                            .foregroundColor(selectedItem == item.title ? .blue : .gray)
-                        
-                        Text(item.title)
-                            .foregroundColor(.black)
-                        
-                        Spacer()
-                    }
-                    .padding()
-                }
-                .buttonStyle(PlainButtonStyle())
+        Text("Tap Me")
+            .padding()
+            .background(Color.green)
+            .cornerRadius(10)
+            .if(isLarge) { view in
+                view.frame(width: 200, height: 100)
             }
-            
-            Spacer().frame(height: 20)
-
-            // External Button to Show Selected Option
-            Button(action: {
-                displayedSelection = selectedItem
-            }) {
-                Text("Show Selected")
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .cornerRadius(8)
+            .onTapGesture {
+                isLarge.toggle()
             }
-            .buttonStyle(PlainButtonStyle())
-
-            // Display selected option
-            if let displayedSelection = displayedSelection {
-                Text("Selected: \(displayedSelection)")
-                    .padding()
-            }
-        }
-        .padding()
     }
+}
 
-struct RadioButtonItem: Identifiable {
-    let id = UUID()
-    let title: String
+extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
 }
