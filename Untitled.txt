@@ -1,77 +1,44 @@
 import SwiftUI
-import UIKit
-
-// UIViewRepresentable to wrap UISegmentedControl
-struct SegmentedControlWrapper: UIViewRepresentable {
-    var segments: [String]
-    var selectedIndex: Binding<Int>
-    var onSegmentChanged: (Int) -> Void // Closure callback when segment changes
-    
-    func makeUIView(context: Context) -> UISegmentedControl {
-        let segmentedControl = UISegmentedControl(items: segments)
-        segmentedControl.addTarget(context.coordinator, action: #selector(Coordinator.segmentChanged), for: .valueChanged)
-        return segmentedControl
-    }
-
-    func updateUIView(_ uiView: UISegmentedControl, context: Context) {
-        uiView.selectedSegmentIndex = selectedIndex.wrappedValue
-    }
-
-    func makeCoordinator() -> Coordinator {
-        return Coordinator(selectedIndex: $selectedIndex, onSegmentChanged: onSegmentChanged)
-    }
-
-    // Coordinator to handle actions
-    class Coordinator: NSObject {
-        var selectedIndex: Binding<Int>
-        var onSegmentChanged: (Int) -> Void
-
-        init(selectedIndex: Binding<Int>, onSegmentChanged: @escaping (Int) -> Void) {
-            self.selectedIndex = selectedIndex
-            self.onSegmentChanged = onSegmentChanged
-        }
-
-        @objc func segmentChanged(sender: UISegmentedControl) {
-            selectedIndex.wrappedValue = sender.selectedSegmentIndex
-            onSegmentChanged(sender.selectedSegmentIndex) // Trigger the closure when the segment changes
+extension View {
+    /// Applies the given transform if the given condition evaluates to `true`.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate.
+    ///   - transform: The transform to apply to the source `View`.
+    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
         }
     }
 }
 
-// SwiftUI View using the custom SegmentedControlWrapper
-struct ContentView: View {
-    @State private var selectedSegment = 0
-    let segments = ["First", "Second", "Third"]
+struct ContentViewNew: View {
+    @State private var isTapEnabled = true
     
     var body: some View {
-        VStack {
-            SegmentedControlWrapper(
-                segments: segments,
-                selectedIndex: $selectedSegment,
-                onSegmentChanged: { selectedIndex in
-                    print("Selected Segment Index: \(selectedIndex)")
-                    // Handle additional actions when a segment is selected
-                    if selectedIndex == 0 {
-                        print("First segment tapped")
-                    } else if selectedIndex == 1 {
-                        print("Second segment tapped")
-                    } else {
-                        print("Third segment tapped")
-                    }
-                }
-            )
-            .frame(height: 50) // Customize the height as needed
-
-            Text("Selected: \(segments[selectedSegment])")
-                .font(.title)
-                .padding()
-        }
-        .padding()
+        Text("Tap me!")
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .if(isTapEnabled) { view in
+                          // We only apply this background color if shouldApplyBackground is true
+                          view.background(Color.red)
+                    .onTapGesture {
+                                    print("Tapped!")
+                                }
+                      }
+        
+        Toggle("Enable Tap", isOn: $isTapEnabled)
+            .padding()
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+struct AnyViewModifier: ViewModifier {
+    var content: (AnyView) -> AnyView
+    func body(content: Content) -> some View {
+        self.content(AnyView(content))
     }
 }
