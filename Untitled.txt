@@ -1,44 +1,17 @@
-import SwiftUI
-extension View {
-    /// Applies the given transform if the given condition evaluates to `true`.
-    /// - Parameters:
-    ///   - condition: The condition to evaluate.
-    ///   - transform: The transform to apply to the source `View`.
-    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
-    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
-        if condition {
-            transform(self)
-        } else {
-            self
-        }
-    dyyduudysys
-}
+class User: Codable {
+    let name: String
+    let email: String
+    let age: String
+    let city: String
+    let isActive: String
+    let joinDate: String
 
-struct ContentViewNew: View {
-    @State private var isTapEnabled = true
-    
-    var body: some View {
-        Text("Tap me!")
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-            .if(isTapEnabled) { view in
-                          // We only apply this background color if shouldApplyBackground is true
-                          view.background(Color.red)
-                    .onTapGesture {
-                                    print("Tapped!")
-                                }
-                      }
-        
-        Toggle("Enable Tap", isOn: $isTapEnabled)
-            .padding()
-    }
-}
-
-struct AnyViewModifier: ViewModifier {
-    var content: (AnyView) -> AnyView
-    func body(content: Content) -> some View {
-        self.content(AnyView(content))
+    init(name: String, email: String, age: String, city: String, isActive: String, joinDate: String) {
+        self.name = name
+        self.email = email
+        self.age = age
+        self.city = city
+        self.isActive = isActive
+        self.joinDate = joinDate
     }
 }
