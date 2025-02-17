@@ -1,44 +1,88 @@
 import SwiftUI
-extension View {
-    /// Applies the given transform if the given condition evaluates to `true`.
-    /// - Parameters:
-    ///   - condition: The condition to evaluate.
-    ///   - transform: The transform to apply to the source `View`.
-    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
-    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
-        if condition {
-            transform(self)
-        } else {
-            self
+
+// Custom View 1
+struct CustomView1: View {
+    var body: some View {
+        VStack {
+            Text("This is Custom View 1")
+                .font(.title)
+                .foregroundColor(.white)
+                .padding()
+            
+            Rectangle()
+                .frame(width: 100, height: 100)
+                .foregroundColor(.green)
         }
+        .background(Color.blue)
+        .cornerRadius(10)
+        .padding()
     }
 }
 
-struct ContentViewNew: View {
-    @State private var isTapEnabled = true
+// Custom View 2
+struct CustomView2: View {
+    var body: some View {
+        VStack {
+            Text("This is Custom View 2")
+                .font(.title)
+                .foregroundColor(.white)
+                .padding()
+            
+            Circle()
+                .frame(width: 100, height: 100)
+                .foregroundColor(.red)
+        }
+        .background(Color.purple)
+        .cornerRadius(10)
+        .padding()
+    }
+}
+
+struct ContentView: View {
+    let items = ["Page 1", "Page 2", "Page 3", "Page 4"]
+    
+    @State private var selectedPage = 0  // Keep track of selected page index
     
     var body: some View {
-        Text("Tap me!")
+        VStack {
+            // Segmented Control
+            Picker("Pages", selection: $selectedPage) {
+                ForEach(0..<items.count, id: \.self) { index in
+                    Text(items[index]).tag(index)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
             .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-            .if(isTapEnabled) { view in
-                          // We only apply this background color if shouldApplyBackground is true
-                          view.background(Color.red)
-                    .onTapGesture {
-                                    print("Tapped!")
-                                }
-                      }
-        
-        Toggle("Enable Tap", isOn: $isTapEnabled)
-            .padding()
+            
+            // Page View (TabView)
+            TabView(selection: $selectedPage) {
+                ForEach(0..<items.count, id: \.self) { index in
+                    // Load different custom views based on the index
+                    if index < 2 {
+                        // Load CustomView1 for pages 1 and 2
+                        CustomView1()
+                            .tag(index)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)  // Make sure the view takes full space
+                    } else {
+                        // Load CustomView2 for pages 3 and 4
+                        CustomView2()
+                            .tag(index)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)  // Make sure the view takes full space
+                    }
+                }
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Disable page dots
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure TabView takes full space
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // Make sure the VStack expands fully
     }
 }
 
-struct AnyViewModifier: ViewModifier {
-    var content: (AnyView) -> AnyView
-    func body(content: Content) -> some View {
-        self.content(AnyView(content))
+@main
+struct PageViewWithSegmentedControlApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
     }
 }
