@@ -1,17 +1,19 @@
-class User: Codable {
-    let name: String
-    let email: String
-    let age: String
-    let city: String
-    let isActive: String
-    let joinDate: String
+import Foundation
 
-    init(name: String, email: String, age: String, city: String, isActive: String, joinDate: String) {
-        self.name = name
-        self.email = email
-        self.age = age
-        self.city = city
-        self.isActive = isActive
-        self.joinDate = joinDate
-    }
+let jsonData = """
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "age": "30",
+    "city": "New York",
+    "isActive": "true",
+    "joinDate": "2024-02-17"
+}
+""".data(using: .utf8)!
+
+do {
+    let user = try JSONDecoder().decode(User.self, from: jsonData)
+    print(user)
+} catch {
+    print("Decoding failed:", error)
 }
