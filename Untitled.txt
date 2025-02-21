@@ -1,115 +1,47 @@
+import SwiftUI
 
-struct ContentView22: View {
-    
-    @State private var currentPage: Int = 0
-    private let numberOfPages = 10
-    
-    // State to track the scroll offset
-    @State private var scrollOffset: CGFloat = 0
+struct ContentView: View {
+    @State private var tabHeight: CGFloat = 300 // Default height
     
     var body: some View {
-        HStack {
-            Button("Go to Page 3") {
-                withAnimation {
-                    scrollToPage(page: 2)  // Navigate to Page 3 (index 2)
-                }
-            }
-            .padding()
-            
-            Button("Go to Page 7") {
-                withAnimation {
-                    scrollToPage(page: 6)  // Navigate to Page 7 (index 6)
-                }
-            }
-            .padding()
-        }
-        GeometryReader { geometry in
-            ScrollView(.vertical, showsIndicators: true) {  // Outer Vertical ScrollView
-                VStack {
-                    // Some vertical content above the Horizontal ScrollView
-                    Text("Vertical Content Above Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    
-                    // Horizontal ScrollView inside Vertical ScrollView
-                    ScrollViewReader { value in
-                    ScrollView(.horizontal, showsIndicators: true) {
-                       
-                        HStack(spacing: 0) {  // Horizontal Stack (HStack) inside the ScrollView
-                         
-                            ForEach(0..<10) { index in
-                                VStack {
-                                    if index == 2 {
-                                        Text("Itv Itemewfv Itemtemewfv Itemewfvmewfv Itemewfvmev Itemetemewfv Itemewfvmewfv Itemewfvmev Itemeewfvmewfv Itemewfvmev Itemewfvmewfv Itemewfvmewfv Itemewfvmewfv" )
-                                    }
-                                    Text("Item \(index + 1)")
-                                        .font(.title)
-                                        .padding()
-                                        .frame(width: 200, height: 200)  // Fixed width and height for each item
-                                        .background(index % 2 == 0 ? Color.blue.opacity(0.3) : Color.green.opacity(0.3))
-                                        .cornerRadius(10)
-                                    Spacer()
-                                    Button("Jump to #8") {
-                                                       value.scrollTo(8, anchor: .trailing)
-                                                   }
-                                    
-                                }
-                                .frame(width: geometry.size.width)
+        VStack {
+            TabView {
+                ChildView(text: "Short Content", color: .blue)
+                    .background(GeometryReader { proxy in
+                        Color.clear
+                            .onAppear { tabHeight = proxy.size.height }
+                            .onChange(of: proxy.size.height) { newHeight in
+                                tabHeight = newHeight
                             }
-                        }
-                        .padding()
-                        .gesture(DragGesture().onChanged { value in
-                            // Track scroll offset during drag (for interaction)
-                            // scrollOffset = value.translation.width
-                        })
-                        // Padding around the horizontal stack
-                    }
-                    
-                    //   .content.offset(x: -scrollOffset)
-                    .scrollTargetBehavior(.paging)
-                    // .frame(height: 300)
-                }
-                    
-                    // More vertical content after the Horizontal ScrollView
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    // More vertical content after the Horizontal ScrollView
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    Text("More Vertical Content Below Horizontal ScrollView")
-                        .font(.title)
-                        .padding()
-                    
-                }
+                    })
+                    .tag(0)
+                
+                ChildView(text: "Longer Content\nMultiple Lines", color: .red)
+                    .background(GeometryReader { proxy in
+                        Color.clear
+                            .onAppear { tabHeight = proxy.size.height }
+                            .onChange(of: proxy.size.height) { newHeight in
+                                tabHeight = newHeight
+                            }
+                    })
+                    .tag(1)
             }
+            .tabViewStyle(PageTabViewStyle())
+            .frame(height: tabHeight) // Set dynamic height
         }
-        .padding()
     }
-    private func scrollToPage(page: Int) {
-        let width = UIScreen.main.bounds.width
-        scrollOffset = CGFloat(page) * width
+}
+
+struct ChildView: View {
+    let text: String
+    let color: Color
+
+    var body: some View {
+        VStack {
+            Text(text)
+                .padding()
+                .background(color.opacity(0.3))
+                .cornerRadius(10)
+        }
     }
 }
