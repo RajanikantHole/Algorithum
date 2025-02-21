@@ -1,47 +1,24 @@
-import SwiftUI
-
 struct ContentView: View {
-    @State private var tabHeight: CGFloat = 300 // Default height
-    
+    @State private var selectedTab = 0
+
     var body: some View {
         VStack {
-            TabView {
-                ChildView(text: "Short Content", color: .blue)
-                    .background(GeometryReader { proxy in
-                        Color.clear
-                            .onAppear { tabHeight = proxy.size.height }
-                            .onChange(of: proxy.size.height) { newHeight in
-                                tabHeight = newHeight
-                            }
-                    })
-                    .tag(0)
-                
-                ChildView(text: "Longer Content\nMultiple Lines", color: .red)
-                    .background(GeometryReader { proxy in
-                        Color.clear
-                            .onAppear { tabHeight = proxy.size.height }
-                            .onChange(of: proxy.size.height) { newHeight in
-                                tabHeight = newHeight
-                            }
-                    })
-                    .tag(1)
+            Picker("Select Tab", selection: $selectedTab) {
+                Text("First").tag(0)
+                Text("Second").tag(1)
             }
-            .tabViewStyle(PageTabViewStyle())
-            .frame(height: tabHeight) // Set dynamic height
-        }
-    }
-}
+            .pickerStyle(.segmented)
+            .padding()
 
-struct ChildView: View {
-    let text: String
-    let color: Color
+            TabView(selection: $selectedTab) {
+                Color.red
+                    .tag(0)
+                    .tabItem { Label("First", systemImage: "1.circle") }
 
-    var body: some View {
-        VStack {
-            Text(text)
-                .padding()
-                .background(color.opacity(0.3))
-                .cornerRadius(10)
+                Color.blue
+                    .tag(1)
+                    .tabItem { Label("Second", systemImage: "2.circle") }
+            }
         }
     }
 }
