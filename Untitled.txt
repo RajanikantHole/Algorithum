@@ -1,24 +1,47 @@
+import SwiftUI
+
 struct ContentView: View {
-    @State private var selectedTab = 0
+    @State private var tabHeight: CGFloat = 300 // Default height
+    
+    var body: some View {
+        VStack {
+            TabView {
+                ChildView(text: "Short Content", color: .blue)
+                    .background(GeometryReader { proxy in
+                        Color.clear
+                            .onAppear { tabHeight = proxy.size.height }
+                            .onChange(of: proxy.size.height) { newHeight in
+                                tabHeight = newHeight
+                            }
+                    })
+                    .tag(0)
+                
+                ChildView(text: "Longer Content\nMultiple Lines", color: .red)
+                    .background(GeometryReader { proxy in
+                        Color.clear
+                            .onAppear { tabHeight = proxy.size.height }
+                            .onChange(of: proxy.size.height) { newHeight in
+                                tabHeight = newHeight
+                            }
+                    })
+                    .tag(1)
+            }
+            .tabViewStyle(PageTabViewStyle())
+            .frame(height: tabHeight) // Set dynamic height
+        }
+    }
+}
+
+struct ChildView: View {
+    let text: String
+    let color: Color
 
     var body: some View {
         VStack {
-            Picker("Select Tab", selection: $selectedTab) {
-                Text("First").tag(0)
-                Text("Second").tag(1)
-            }
-            .pickerStyle(.segmented)
-            .padding()
-
-            TabView(selection: $selectedTab) {
-                Color.red
-                    .tag(0)
-                    .tabItem { Label("First", systemImage: "1.circle") }
-
-                Color.blue
-                    .tag(1)
-                    .tabItem { Label("Second", systemImage: "2.circle") }
-            }
+            Text(text)
+                .padding()
+                .background(color.opacity(0.3))
+                .cornerRadius(10)
         }
     }
 }
