@@ -1,47 +1,21 @@
 import SwiftUI
 
-struct ContentView: View {
-    @State private var tabHeight: CGFloat = 300 // Default height
-    
-    var body: some View {
-        VStack {
-            TabView {
-                ChildView(text: "Short Content", color: .blue)
-                    .background(GeometryReader { proxy in
-                        Color.clear
-                            .onAppear { tabHeight = proxy.size.height }
-                            .onChange(of: proxy.size.height) { newHeight in
-                                tabHeight = newHeight
-                            }
-                    })
-                    .tag(0)
-                
-                ChildView(text: "Longer Content\nMultiple Lines", color: .red)
-                    .background(GeometryReader { proxy in
-                        Color.clear
-                            .onAppear { tabHeight = proxy.size.height }
-                            .onChange(of: proxy.size.height) { newHeight in
-                                tabHeight = newHeight
-                            }
-                    })
-                    .tag(1)
-            }
-            .tabViewStyle(PageTabViewStyle())
-            .frame(height: tabHeight) // Set dynamic height
+@MainActor
+class MyViewModel: ObservableObject {
+    @Published var data: [String] = []  // Replace with your model type
+
+    func fetchData() async {
+        do {
+            let fetchedData = try await fetchFromAPI()
+            data = fetchedData
+        } catch {
+            print("Error fetching data: \(error)")
         }
     }
-}
-
-struct ChildView: View {
-    let text: String
-    let color: Color
-
-    var body: some View {
-        VStack {
-            Text(text)
-                .padding()
-                .background(color.opacity(0.3))
-                .cornerRadius(10)
-        }
+    
+    private func fetchFromAPI() async throws -> [String] {
+        let url = URL(string: "https://api.example.com/data")!
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return try JSONDecoder().decode([String].self, from: data)
     }
 }
