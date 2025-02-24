@@ -1,12 +1,32 @@
-struct MyView: View {
-    @StateObject private var viewModel = MyViewModel()
+import SwiftUI
+
+struct ContentView: View {
+    @State private var result = "Loading..."
 
     var body: some View {
-        List(viewModel.data, id: \.self) { item in
-            Text(item)
+        Text(result)
+            .task {
+                await fetchFinalData()
+            }
+    }
+
+    func fetchFinalData() async {
+        do {
+            let finalResult = try await secondAsyncTask()
+            result = finalResult
+        } catch {
+            result = "Error: \(error.localizedDescription)"
         }
-        .task {
-            await viewModel.fetchData()
-        }
+    }
+
+    func firstAsyncTask() async throws -> String {
+        try await Task.sleep(nanoseconds: 1_000_000_000) // Simulate delay
+        return "First Task Done"
+    }
+
+    func secondAsyncTask() async throws -> String {
+        let firstResult = try await firstAsyncTask() // Calling first inside second
+        try await Task.sleep(nanoseconds: 1_000_000_000) // Simulate delay
+        return "Second Task: \(firstResult)"
     }
 }
