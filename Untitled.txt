@@ -1,21 +1,12 @@
-import SwiftUI
+struct MyView: View {
+    @StateObject private var viewModel = MyViewModel()
 
-@MainActor
-class MyViewModel: ObservableObject {
-    @Published var data: [String] = []  // Replace with your model type
-
-    func fetchData() async {
-        do {
-            let fetchedData = try await fetchFromAPI()
-            data = fetchedData
-        } catch {
-            print("Error fetching data: \(error)")
+    var body: some View {
+        List(viewModel.data, id: \.self) { item in
+            Text(item)
         }
-    }
-    
-    private func fetchFromAPI() async throws -> [String] {
-        let url = URL(string: "https://api.example.com/data")!
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode([String].self, from: data)
+        .task {
+            await viewModel.fetchData()
+        }
     }
 }
