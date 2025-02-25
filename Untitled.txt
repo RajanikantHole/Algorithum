@@ -1,32 +1,8 @@
-import SwiftUI
-
-struct ContentView: View {
-    @State private var result = "Loading..."
-
-    var body: some View {
-        Text(result)
-            .task {
-                await fetchFinalData()
-            }
-    }
-
-    func fetchFinalData() async {
-        do {
-            let finalResult = try await secondAsyncTask()
-            result = finalResult
-        } catch {
-            result = "Error: \(error.localizedDescription)"
-        }
-    }
-
-    func firstAsyncTask() async throws -> String {
-        try await Task.sleep(nanoseconds: 1_000_000_000) // Simulate delay
-        return "First Task Done"
-    }
-
-    func secondAsyncTask() async throws -> String {
-        let firstResult = try await firstAsyncTask() // Calling first inside second
-        try await Task.sleep(nanoseconds: 1_000_000_000) // Simulate delay
-        return "Second Task: \(firstResult)"
-    }
+@MainActor
+func getNoTransactionScreenContentHeight() -> CGFloat {
+    let screenHeight = UIScreen.main.bounds.height
+    let contentViewCapacityHeight = screenHeight - (noTransactionScreenContentHeight + 
+                                                    DesignConstants.TabBarComponentDimensions.tabBarMaxHeight + 180)
+    
+    return max(contentViewCapacityHeight, 350)
 }
