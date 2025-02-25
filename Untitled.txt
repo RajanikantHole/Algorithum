@@ -1,8 +1,10 @@
 @MainActor
 func getNoTransactionScreenContentHeight() -> CGFloat {
     let screenHeight = UIScreen.main.bounds.height
-    let contentViewCapacityHeight = screenHeight - (noTransactionScreenContentHeight + 
-                                                    DesignConstants.TabBarComponentDimensions.tabBarMaxHeight + 180)
+    let additionalSpacing: CGFloat = 180  // Extra padding or reserved space
+    let usedHeight = noTransactionScreenContentHeight + 
+                     DesignConstants.TabBarComponentDimensions.tabBarMaxHeight + 
+                     additionalSpacing
     
-    return max(contentViewCapacityHeight, 350)
+    return max(screenHeight - usedHeight, 350)
 }
