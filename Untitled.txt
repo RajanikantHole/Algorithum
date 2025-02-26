@@ -1,12 +1,9 @@
-@MainActor
-func getNoTransactionScreenContentHeight() -> CGFloat {
-    let screenHeight = UIScreen.main.bounds.height
-    let additionalSpacing: CGFloat = 180  // Extra padding or reserved space
-    let minimumContentHeight: CGFloat = 350  // Ensures a minimum visible height
-    
-    let usedHeight = noTransactionScreenContentHeight + 
-                     DesignConstants.TabBarComponentDimensions.tabBarMaxHeight + 
-                     additionalSpacing
-    
-    return max(screenHeight - usedHeight, minimumContentHeight)
-}
+let epochTime: TimeInterval = 1700000000 // Example epoch time
+let date = Date(timeIntervalSince1970: epochTime)
+
+let dateFormatter = DateFormatter()
+dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+dateFormatter.timeZone = TimeZone.current
+
+let formattedDate = dateFormatter.string(from: date)
+print(formattedDate) // Output: "2023-11-14 10:13:20" (depends on timezone)
