@@ -2,20 +2,16 @@ init() {
     SisMasked
         .sink { [weak self] isMasked in
             guard let self else { return }
-            
-            for index in 0..<self.transactions.count {
+
+            for (index, transaction) in self.transactions.enumerated() {
+                let currency = transaction.currencyCode ?? ""
+
                 if isMasked {
-                    self.transactions[index].amount = 
-                        "\(AccountConstants.ComponentStrings.masked) \(self.transactions[index].currencyCode ?? "")"
-                    
-                    self.transactions[index].balance = 
-                        "\(AccountConstants.ComponentStrings.balanceLabel) \(AccountConstants.ComponentStrings.masked) \(self.transactions[index].currencyCode ?? "")"
-                } else if !self.transactions.isEmpty {
-                    self.transactions[index].amount = 
-                        "\(self.amountArray[index]) \(self.transactions[index].currencyCode ?? "")"
-                    
-                    self.transactions[index].balance = 
-                        "\(AccountConstants.ComponentStrings.balanceLabel) \(self.balanceArray[index]) \(self.transactions[index].currencyCode ?? "")"
+                    transaction.amount = "\(AccountConstants.ComponentStrings.masked) \(currency)"
+                    transaction.balance = "\(AccountConstants.ComponentStrings.balanceLabel) \(AccountConstants.ComponentStrings.masked) \(currency)"
+                } else if index < self.amountArray.count, index < self.balanceArray.count {
+                    transaction.amount = "\(self.amountArray[index]) \(currency)"
+                    transaction.balance = "\(AccountConstants.ComponentStrings.balanceLabel) \(self.balanceArray[index]) \(currency)"
                 }
             }
         }
