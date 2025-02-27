@@ -1,9 +1,69 @@
-let epochTime: TimeInterval = 1700000000 // Example epoch time
-let date = Date(timeIntervalSince1970: epochTime)
+import SwiftUI
 
-let dateFormatter = DateFormatter()
-dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-dateFormatter.timeZone = TimeZone.current
+struct AccountDetailsView: View {
+    @ObservedObject private var accountDetailsViewModel: AccountDetailsViewModel = .init()
 
-let formattedDate = dateFormatter.string(from: date)
-print(formattedDate) // Output: "2023-11-14 10:13:20" (depends on timezone)
+    struct AccountDetailItem {
+        let label: String
+        let value: String
+        let accessibilityID: String
+    }
+
+    private var accountDetailItems: [AccountDetailItem] {
+        [
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.accountNumber,
+                value: accountDetailsViewModel.listItemContract?.accountNumber ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.accountNumber
+            ),
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.iban,
+                value: accountDetailsViewModel.listItemContract?.iban ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.iban
+            ),
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.customerID,
+                value: accountDetailsViewModel.listItemContract?.customerID ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.customerID
+            ),
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.currentBalance,
+                value: accountDetailsViewModel.listItemContract?.currentBalance ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.currentBalance
+            ),
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.lienAmount,
+                value: accountDetailsViewModel.listItemContract?.lienAmount ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.lienAmount
+            ),
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.availableBalance,
+                value: accountDetailsViewModel.listItemContract?.availableBalance ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.availableBalance
+            ),
+            AccountDetailItem(
+                label: AccountConstants.AccountInfoModelConstants.taxRegistrationNumber,
+                value: accountDetailsViewModel.listItemContract?.taxRegistrationNumber ?? "",
+                accessibilityID: AccountConstants.AccountInfoModelAccessibilityConstants.taxRegistrationNumber
+            )
+        ]
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            CardBaseComponent()
+
+            ForEach(accountDetailItems, id: \.label) { item in
+                ListItem(
+                    listItemDataSource: ListItemDataSource(label: item.label, value: item.value),
+                    accessibilityIDs: [.value: item.accessibilityID]
+                )
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.top, 8)
+        .onAppear {
+            accountDetailsViewModel.getAccountDetails()
+        }
+    }
+}
