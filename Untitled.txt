@@ -1,20 +1,20 @@
-init() {
+private func setupBindings() {
+    // Binding is done for Account card and Transaction list
     SisMasked
-        .sink { [weak self] isMasked in
+        .sink { [weak self] newValue in
             guard let self else { return }
             
-            guard let listItemContract = self.listItemContract else { return }
+            self.transactionsListViewModel.isMasked = newValue
+            self.cardAccountViewModel.isMasked = newValue
+            self.accountDetailsViewModel.isMasked = newValue
             
-            if isMasked {
-                let maskedValue = "\(AccountConstants.ComponentStrings.masked) \(self.nonMakedlistItemContract?.currencyCode ?? "")"
-                
-                listItemContract.currentBalance = maskedValue
-                listItemContract.lienAmount = maskedValue
-                listItemContract.availableBalance = maskedValue
+            if newValue {
+                self.cardAccountViewModel.cardInfoModel.accountAmountText = 
+                    "\(AccountConstants.ComponentStrings.masked) \(AccountConstants.ComponentStrings.currency)"
+                self.headerIcon = [AccountConstants.ComponentStrings.hideIconTitle]
             } else {
-                listItemContract.currentBalance = self.nonMakedlistItemContract?.currentBalance ?? ""
-                listItemContract.lienAmount = self.nonMakedlistItemContract?.lienAmount ?? ""
-                listItemContract.availableBalance = self.nonMakedlistItemContract?.availableBalance ?? ""
+                self.cardAccountViewModel.cardInfoModel.accountAmountText = self.amountValue ?? ""
+                self.headerIcon = [AccountConstants.ComponentStrings.iconTitle]
             }
         }
 }
