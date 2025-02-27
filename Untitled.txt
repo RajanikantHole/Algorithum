@@ -1,20 +1,22 @@
-private func setupBindings() {
-    // Binding is done for Account card and Transaction list
+init() {
     SisMasked
-        .sink { [weak self] newValue in
+        .sink { [weak self] isMasked in
             guard let self else { return }
             
-            self.transactionsListViewModel.isMasked = newValue
-            self.cardAccountViewModel.isMasked = newValue
-            self.accountDetailsViewModel.isMasked = newValue
-            
-            if newValue {
-                self.cardAccountViewModel.cardInfoModel.accountAmountText = 
-                    "\(AccountConstants.ComponentStrings.masked) \(AccountConstants.ComponentStrings.currency)"
-                self.headerIcon = [AccountConstants.ComponentStrings.hideIconTitle]
-            } else {
-                self.cardAccountViewModel.cardInfoModel.accountAmountText = self.amountValue ?? ""
-                self.headerIcon = [AccountConstants.ComponentStrings.iconTitle]
+            for index in 0..<self.transactions.count {
+                if isMasked {
+                    self.transactions[index].amount = 
+                        "\(AccountConstants.ComponentStrings.masked) \(self.transactions[index].currencyCode ?? "")"
+                    
+                    self.transactions[index].balance = 
+                        "\(AccountConstants.ComponentStrings.balanceLabel) \(AccountConstants.ComponentStrings.masked) \(self.transactions[index].currencyCode ?? "")"
+                } else if !self.transactions.isEmpty {
+                    self.transactions[index].amount = 
+                        "\(self.amountArray[index]) \(self.transactions[index].currencyCode ?? "")"
+                    
+                    self.transactions[index].balance = 
+                        "\(AccountConstants.ComponentStrings.balanceLabel) \(self.balanceArray[index]) \(self.transactions[index].currencyCode ?? "")"
+                }
             }
         }
 }
