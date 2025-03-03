@@ -1,22 +1,10 @@
-import Foundation
+import SwiftUI
 
-struct DateUtils {
-    private static var formatterCache = [String: DateFormatter]()
+struct ContentView: View {
+    let epochTime: TimeInterval = 1709505600 // Example epoch time
     
-    static func formatEpoch(_ epoch: TimeInterval, format: String, timeZone: TimeZone = .current) -> String {
-        let date = Date(timeIntervalSince1970: epoch)
-        let formatter = cachedFormatter(for: format, timeZone: timeZone)
-        return formatter.string(from: date)
-    }
-    
-    private static func cachedFormatter(for format: String, timeZone: TimeZone) -> DateFormatter {
-        let key = "\(format)_\(timeZone.identifier)"
-        if let cached = formatterCache[key] { return cached }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = format
-        formatter.timeZone = timeZone
-        formatterCache[key] = formatter
-        return formatter
+    var body: some View {
+        Text(DateUtils.formatEpoch(epochTime, format: "yyyy-MM-dd HH:mm:ss", timeZone: .current))
+            .padding()
     }
 }
