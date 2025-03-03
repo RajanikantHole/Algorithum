@@ -1,10 +1,30 @@
-import SwiftUI
+import Foundation
 
-struct ContentView: View {
-    let epochTime: TimeInterval = 1709505600 // Example epoch time
+final class DateFormatterUtility {
+    static let shared = DateFormatterUtility() // Singleton instance
     
-    var body: some View {
-        Text(DateUtils.formatEpoch(epochTime, format: "yyyy-MM-dd HH:mm:ss", timeZone: .current))
-            .padding()
+    private let cache = NSCache<NSString, DateFormatter>()
+    private let queue = DispatchQueue(label: "com.dateFormatterUtility.queue", attributes: .concurrent)
+    
+    private init() {} // Prevent external instantiation
+    
+    func format(date timestamp: TimeInterval, format: String = "yyyy-MM-dd HH:mm:ss", timeZone: TimeZone = .current) -> String {
+        let cacheKey = "\(format)-\(timeZone.identifier)" as NSString
+        
+        // Concurrent read
+        if let cachedFormatter = queue.sync(execute: { cache.object(forKey: cacheKey) }) {
+            return cachedFormatter.string(from: Date(timeIntervalSince1970: timestamp))
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.timeZone = timeZone
+        
+        // Thread-safe write using barrier
+        queue.async(flags: .barrier) {
+            self.cache.setObject(formatter, forKey: cacheKey)
+        }
+        
+        return formatter.string(from: Date(timeIntervalSince1970: timestamp))
     }
 }
