@@ -1,17 +1,22 @@
-do {
-    let transactions = try await useCase.executeFetchTransactions(accountNumber: someAccountNumber)
+import Foundation
+
+struct DateUtils {
+    private static var formatterCache = [String: DateFormatter]()
     
-    self.transactions = transactions.transactionList.map { object in
-        TransactionItemDataSource(
-            type: object.transactionDescription,
-            amount: "\(object.amount)",
-            date: "\(object.dateTime)",
-            balance: "\(object.runningBalance)",
-            referenceNumber: object.refNumber,
-            isCredit: true,
-            currencyCode: object.currencyCode
-        )
+    static func formatEpoch(_ epoch: TimeInterval, format: String, timeZone: TimeZone = .current) -> String {
+        let date = Date(timeIntervalSince1970: epoch)
+        let formatter = cachedFormatter(for: format, timeZone: timeZone)
+        return formatter.string(from: date)
     }
-} catch {
-    print("Failed to fetch transactions: \(error)")
+    
+    private static func cachedFormatter(for format: String, timeZone: TimeZone) -> DateFormatter {
+        let key = "\(format)_\(timeZone.identifier)"
+        if let cached = formatterCache[key] { return cached }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.timeZone = timeZone
+        formatterCache[key] = formatter
+        return formatter
+    }
 }
