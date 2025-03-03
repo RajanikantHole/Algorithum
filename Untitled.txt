@@ -1,55 +1,17 @@
-private extension AccountLandingView {
-    var transactionsSection: some View {
-        VStack(spacing: AccountConstants.Spacings.defaultSpacingZero) {
-            SectionHeader(
-                sectionHeaderDataSource: SectionHeaderDataSource(
-                    title: AccountConstants.ComponentStrings.transactionsHeaderTitle,
-                    linkButtonTitle: AccountConstants.ComponentStrings.viewAll
-                )
-            )
-            .onTapGesture {
-                debugPrint("Section Header pressed")
-            }
-            .padding(.top, AccountConstants.Spacings.sectionHeaderTopPadding)
-            .padding(.bottom, AccountConstants.Spacings.sectionHeaderBottomPadding)
-
-            TransactionsListView(transactionsListViewModel: viewModel.transactionsListViewModel)
-                .padding(.horizontal, AccountConstants.Spacings.defaultHorizontalVerticalPadding)
-        }
+do {
+    let transactions = try await useCase.executeFetchTransactions(accountNumber: someAccountNumber)
+    
+    self.transactions = transactions.transactionList.map { object in
+        TransactionItemDataSource(
+            type: object.transactionDescription,
+            amount: "\(object.amount)",
+            date: "\(object.dateTime)",
+            balance: "\(object.runningBalance)",
+            referenceNumber: object.refNumber,
+            isCredit: true,
+            currencyCode: object.currencyCode
+        )
     }
-
-    var accountDetailsSection: some View {
-        VStack(spacing: AccountConstants.Spacings.defaultSpacingZero) {
-            AccountDetailsView(accountDetailsViewModel: viewModel.accountDetailsViewModel)
-            Spacer()
-        }
-        .padding(.horizontal, AccountConstants.Spacings.defaultHorizontalVerticalPadding)
-    }
-
-    var contentView: some View {
-        TabView(selection: $viewModel.selectedSegment) {
-            GeometryReader { proxy in
-                Color.clear
-                    .onAppear {
-                        viewModel.tabHeight1 = proxy.size.height
-                    }
-                    .onChange(of: proxy.size.height) { newHeight in
-                        viewModel.tabHeight1 = newHeight
-                    }
-            }
-
-            GeometryReader { proxy in
-                Color.clear
-                    .onAppear {
-                        viewModel.tabHeight2 = proxy.size.height
-                    }
-                    .onChange(of: proxy.size.height) { newHeight in
-                        viewModel.tabHeight2 = newHeight
-                    }
-            }
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .never))
-        .frame(height: max(viewModel.tabHeight1, viewModel.tabHeight2))
-    }
+} catch {
+    print("Failed to fetch transactions: \(error)")
 }
