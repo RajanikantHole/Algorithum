@@ -1,19 +1,18 @@
 import Foundation
 
-@Sendable
-final class DateFormatterUtility {
-    static let shared = DateFormatterUtility()
-    
-    private let queue = DispatchQueue(label: "com.dateFormatterUtility.queue", attributes: .concurrent)
-    private var formatter = DateFormatter()
-    
-    private init() {} // Prevent external instantiation
-    
-    func format(date timestamp: TimeInterval, format: String = "yyyy-MM-dd HH:mm:ss", timeZone: TimeZone = .current) -> String {
-        queue.sync {
-            formatter.dateFormat = format
-            formatter.timeZone = timeZone
-            return formatter.string(from: Date(timeIntervalSince1970: timestamp))
-        }
+extension Double {
+    func toDateString(format: String = "yyyy-MM-dd HH:mm:ss", timeZone: TimeZone = .current) -> String {
+        let formatter: DateFormatter = {
+            let df = DateFormatter()
+            df.dateFormat = format
+            df.timeZone = timeZone
+            return df
+        }() // Lazily initialized formatter
+        
+        return formatter.string(from: Date(timeIntervalSince1970: self))
     }
 }
+
+// Example usage:
+let epochTime: Double = 1709558400  // Example epoch time
+print(epochTime.toDateString()) // Output: "2024-03-04 00:00:00" (depends on time zone)
