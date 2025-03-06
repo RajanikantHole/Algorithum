@@ -1,0 +1,30 @@
+import XCTest
+
+public class MathOperations {
+    public init() {}
+
+    public func add(_ a: Int, _ b: Int) -> Int {
+        return a + b
+    }
+
+    public func isEven(_ number: Int) -> Bool {
+        return number % 2 == 0
+    }
+}
+
+final class MathOperationsTests: XCTestCase {
+    func testAddition() {
+        let math = MathOperations()
+        XCTAssertEqual(math.add(2, 3), 5)
+        XCTAssertEqual(math.add(-1, 1), 0)
+    }
+
+    func testIsEven() {
+        let math = MathOperations()
+        XCTAssertTrue(math.isEven(4))
+        XCTAssertFalse(math.isEven(3))
+    }
+}
+
+// Run tests automatically when executed in a Swift script
+MathOperationsTests.defaultTestSuite.run()
