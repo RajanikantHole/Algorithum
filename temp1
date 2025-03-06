@@ -1,1 +1,6 @@
-swift package init --type library --name MathLibrary
+.target(
+    name: "YourPackage",
+    resources: [
+        .process("Resources") // This includes files from the Resources folder
+    ]
+)
