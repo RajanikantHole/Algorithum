@@ -1,18 +1,7 @@
 import Foundation
 
-extension Double {
-    func toDateString(format: String = "yyyy-MM-dd HH:mm:ss", timeZone: TimeZone = .current) -> String {
-        let formatter: DateFormatter = {
-            let df = DateFormatter()
-            df.dateFormat = format
-            df.timeZone = timeZone
-            return df
-        }() // Lazily initialized formatter
-        
-        return formatter.string(from: Date(timeIntervalSince1970: self))
-    }
+if let url = Bundle.module.url(forResource: "example", withExtension: "json"),
+   let data = try? Data(contentsOf: url),
+   let content = String(data: data, encoding: .utf8) {
+    print(content)
 }
-
-// Example usage:
-let epochTime: Double = 1709558400  // Example epoch time
-print(epochTime.toDateString()) // Output: "2024-03-04 00:00:00" (depends on time zone)
