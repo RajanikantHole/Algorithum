@@ -1,7 +1,7 @@
 import Foundation
 
-if let url = Bundle.module.url(forResource: "example", withExtension: "json"),
-   let data = try? Data(contentsOf: url),
-   let content = String(data: data, encoding: .utf8) {
-    print(content)
+extension Dictionary where Key == String, Value == Any {
+    func toData() -> Data? {
+        try? JSONSerialization.data(withJSONObject: self, options: [])
+    }
 }
