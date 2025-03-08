@@ -1,14 +1,54 @@
-import Foundation
+import SwiftUI
+import Combine
 
-func dictionaryToJSONData(_ dictionary: [String: Any]) -> Data {
-    do {
-        return try JSONSerialization.data(withJSONObject: dictionary, options: [])
-    } catch {
-        fatalError("Failed to convert dictionary to JSON: \(error.localizedDescription)")
+struct ContentView: View {
+    @StateObject private var viewModel = ViewModel()
+
+    var body: some View {
+        VStack {
+            if let error = viewModel.errorMessage {
+                Text("Error: \(error)")
+                    .foregroundColor(.red)
+            } else {
+                Text(viewModel.data)
+            }
+
+            Button("Fetch Data") {
+                viewModel.fetchData()
+            }
+        }
+        .padding()
     }
 }
 
-// Example Usage:
-let dict: [String: Any] = ["name": "John", "age": 30]
-let jsonData = dictionaryToJSONData(dict)  // Will crash if conversion fails
-print("JSON Data:", jsonData)
+class ViewModel: ObservableObject {
+    @Published var data: String = ""
+    @Published var errorMessage: String?
+
+    func fetchData() {
+        do {
+            let result = try someThrowingFunction()
+            DispatchQueue.main.async {
+                self.data = result
+                self.errorMessage = nil
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func someThrowingFunction() throws -> String {
+        throw NSError(domain: "ExampleError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Something went wrong"])
+    }
+}
+
+@main
+struct MyApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
