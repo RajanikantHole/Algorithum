@@ -1,38 +1,17 @@
-import SwiftUI
-import Combine
-
-struct ContentView: View {
-    @StateObject private var viewModel = ViewModel()
-
-    var body: some View {
-        VStack {
-            if let error = viewModel.errorMessage {
-                Text("Error: \(error)")
-                    .foregroundColor(.red)
-            } else {
-                Text(viewModel.data)
-            }
-
-            Button("Fetch Data") {
-                viewModel.fetchData()
-            }
-        }
-        .padding()
-    }
-}
-
 class ViewModel: ObservableObject {
     @Published var data: String = ""
     @Published var errorMessage: String?
 
     func fetchData() {
-        do {
-            let result = try someThrowingFunction()
+        let result = Result { try someThrowingFunction() }
+
+        switch result {
+        case .success(let value):
             DispatchQueue.main.async {
-                self.data = result
+                self.data = value
                 self.errorMessage = nil
             }
-        } catch {
+        case .failure(let error):
             DispatchQueue.main.async {
                 self.errorMessage = error.localizedDescription
             }
@@ -41,14 +20,5 @@ class ViewModel: ObservableObject {
 
     private func someThrowingFunction() throws -> String {
         throw NSError(domain: "ExampleError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Something went wrong"])
-    }
-}
-
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
     }
 }
