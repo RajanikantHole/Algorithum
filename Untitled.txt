@@ -1,7 +1,14 @@
 import Foundation
 
-extension Dictionary where Key == String, Value == Any {
-    func toData() -> Data? {
-        try? JSONSerialization.data(withJSONObject: self, options: [])
+func dictionaryToJSONData(_ dictionary: [String: Any]) -> Data {
+    do {
+        return try JSONSerialization.data(withJSONObject: dictionary, options: [])
+    } catch {
+        fatalError("Failed to convert dictionary to JSON: \(error.localizedDescription)")
     }
 }
+
+// Example Usage:
+let dict: [String: Any] = ["name": "John", "age": 30]
+let jsonData = dictionaryToJSONData(dict)  // Will crash if conversion fails
+print("JSON Data:", jsonData)
