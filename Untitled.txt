@@ -1,24 +1,11 @@
-class ViewModel: ObservableObject {
-    @Published var data: String = ""
-    @Published var errorMessage: String?
-
-    func fetchData() {
-        let result = Result { try someThrowingFunction() }
-
-        switch result {
-        case .success(let value):
-            DispatchQueue.main.async {
-                self.data = value
-                self.errorMessage = nil
-            }
-        case .failure(let error):
-            DispatchQueue.main.async {
-                self.errorMessage = error.localizedDescription
-            }
-        }
-    }
-
-    private func someThrowingFunction() throws -> String {
-        throw NSError(domain: "ExampleError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Something went wrong"])
-    }
-}
+ViewModel 
+    │
+    ▼
+UseCase
+    │
+    ├──► Repository (Fetches real data)
+    │         │
+    │         ▼
+    │   Network Service (API Call)
+    │
+    └──► Mock Repository (Returns mock data)
