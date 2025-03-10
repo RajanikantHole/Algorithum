@@ -1,11 +1,8 @@
-ViewModel 
-    │
-    ▼
-UseCase
-    │
-    ├──► Repository (Fetches real data)
-    │         │
-    │         ▼
-    │   Network Service (API Call)
-    │
-    └──► Mock Repository (Returns mock data)
+extension Dictionary {
+    static func + (lhs: Dictionary, rhs: Dictionary) -> Dictionary {
+        lhs.merging(rhs) { (_, new) in new }
+    }
+}
+
+let mergedDict = dict1 + dict2
+print(mergedDict) // ["a": "apple", "b": "banana", "c": "cherry", "d": "date"]
