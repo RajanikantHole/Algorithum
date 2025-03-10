@@ -1,8 +1,7 @@
-extension Dictionary {
-    static func + (lhs: Dictionary, rhs: Dictionary) -> Dictionary {
-        lhs.merging(rhs) { (_, new) in new }
-    }
-}
+let dict1: [String: String] = ["a": "apple", "b": "banana"]
+let dict2: [String: String] = ["b": "blueberry", "c": "cherry"]
 
-let mergedDict = dict1 + dict2
-print(mergedDict) // ["a": "apple", "b": "banana", "c": "cherry", "d": "date"]
+let dict3 = dict1.merging(dict2) { old, new in old + ", " + new }
+
+print(dict3)  
+// ["a": "apple", "b": "banana, blueberry", "c": "cherry"]
