@@ -1,7 +1,121 @@
-let dict1: [String: String] = ["a": "apple", "b": "banana"]
-let dict2: [String: String] = ["b": "blueberry", "c": "cherry"]
+//
+//  ContentView.swift
+//  asfvd
+//
+//  Created by rajnikanthole on 11/03/25.
+//
 
-let dict3 = dict1.merging(dict2) { old, new in old + ", " + new }
+import SwiftUI
+import SwiftData
 
-print(dict3)  
-// ["a": "apple", "b": "banana, blueberry", "c": "cherry"]
+import SwiftUI
+
+// Data Model
+struct SectionData: Identifiable {
+    let id = UUID()
+    let title: String
+    let rows: [String]
+}
+
+struct ContentView: View {
+    @State private var expandedSections: Set<UUID>
+
+    // Sample Data
+    let sections: [SectionData] = [
+        SectionData(title: "Section 1", rows: ["Row 1", "Row 2", "Row 3"]),
+        SectionData(title: "Section 2", rows: ["Item 1", "Item 2"]),
+        SectionData(title: "Section 3", rows: ["Data 1", "Data 2", "Data 3", "Data 4"])
+    ]
+
+    // Initialize with the first section expanded
+    init() {
+        _expandedSections = State(initialValue: [sections.first!.id])
+    }
+
+    var body: some View {
+        List {
+            ForEach(sections) { section in
+                Section(
+                    header: CustomHeader(
+                        title: section.title,
+                        isExpanded: expandedSections.contains(section.id)
+                    ) {
+                        withAnimation {
+                            toggleSection(section.id)
+                        }
+                    }
+                ) {
+                    if expandedSections.contains(section.id) {
+                        EmptyHolder {
+                            VStack(spacing: 0) {
+                                ForEach(section.rows, id: \.self) { row in
+                                    Text(row)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.vertical, 5)
+                                }
+                            }
+                        }
+                    }
+                }
+                .listRowInsets(EdgeInsets())
+            }
+        }
+        .listStyle(.grouped)
+        .listSectionSpacing(.custom(0)) // Removes spacing between sections
+        .environment(\.defaultMinListRowHeight, 0)
+    }
+
+    // Toggle section logic
+    private func toggleSection(_ id: UUID) {
+        if expandedSections.contains(id) {
+            expandedSections.remove(id)
+        } else {
+            expandedSections.insert(id)
+        }
+    }
+}
+
+// Custom Header View with Tap Handling
+struct CustomHeader: View {
+    let title: String
+    let isExpanded: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.headline)
+            Spacer()
+            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+        }
+        .padding()
+        .background(Color.blue.opacity(0.2))
+        .cornerRadius(8)
+        .onTapGesture {
+            onTap()
+        }
+    }
+}
+
+// Empty Holder for Reusability
+struct EmptyHolder<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.gray, lineWidth: 1)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(12)
+
+            content
+                .padding(.vertical, 0)
+                .padding(.horizontal)
+        }
+        .listRowInsets(EdgeInsets()) // Important for spacing control
+    }
+}
