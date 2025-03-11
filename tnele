@@ -1,30 +1,111 @@
-import XCTest
+import SwiftUI
 
-public class MathOperations {
-    public init() {}
+// Data Model
+struct SectionData: Identifiable {
+    let id = UUID()
+    let title: String
+    let rows: [String]
+}
 
-    public func add(_ a: Int, _ b: Int) -> Int {
-        return a + b
+// Sample Data
+let sections: [SectionData] = [
+    SectionData(title: "Section 1", rows: ["Row 1", "Row 2", "Row 3"]),
+    SectionData(title: "Section 2", rows: ["Item 1", "Item 2"]),
+    SectionData(title: "Section 3", rows: ["Data 1", "Data 2", "Data 3", "Data 4"])
+]
+
+struct ContentView: View {
+    @State private var expandedSections: Set<UUID>
+
+    init() {
+        _expandedSections = State(initialValue: [sections.first!.id]) // Always keep the first section expanded
     }
 
-    public func isEven(_ number: Int) -> Bool {
-        return number % 2 == 0
+    var body: some View {
+        List {
+            ForEach(sections) { section in
+                Section(
+                    header: CustomHeader(
+                        title: section.title,
+                        isExpanded: expandedSections.contains(section.id)
+                    ) {
+                        withAnimation {
+                            toggleSection(section.id)
+                        }
+                    }
+                ) {
+                    if expandedSections.contains(section.id) {
+                        EmptyHolder {
+                            VStack(spacing: 0) {
+                                ForEach(section.rows, id: \.self) { row in
+                                    Text(row)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.vertical, 5)
+                                }
+                            }
+                        }
+                    }
+                }
+                .listRowInsets(EdgeInsets())
+            }
+        }
+        .listStyle(.grouped)
+        .listSectionSpacing(0)
+    }
+
+    // Toggle section but keep the first one always expanded
+    private func toggleSection(_ id: UUID) {
+        if id == sections.first!.id { return } // Prevent collapsing the first section
+        
+        if expandedSections.contains(id) {
+            expandedSections.remove(id)
+        } else {
+            expandedSections.insert(id)
+        }
     }
 }
 
-final class MathOperationsTests: XCTestCase {
-    func testAddition() {
-        let math = MathOperations()
-        XCTAssertEqual(math.add(2, 3), 5)
-        XCTAssertEqual(math.add(-1, 1), 0)
-    }
+// Custom Header View
+struct CustomHeader: View {
+    let title: String
+    let isExpanded: Bool
+    let onTap: () -> Void
 
-    func testIsEven() {
-        let math = MathOperations()
-        XCTAssertTrue(math.isEven(4))
-        XCTAssertFalse(math.isEven(3))
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.headline)
+            Spacer()
+            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+        }
+        .padding()
+        .background(Color.blue.opacity(0.2))
+        .cornerRadius(8)
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 
-// Run tests automatically when executed in a Swift script
-MathOperationsTests.defaultTestSuite.run()
+// Empty Holder for Reusability
+struct EmptyHolder<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.gray, lineWidth: 1)
+                .background(Color.gray.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            content
+                .padding(.vertical, 0)
+                .padding(.horizontal)
+        }
+        .listRowInsets(EdgeInsets()) 
+    }
+}
