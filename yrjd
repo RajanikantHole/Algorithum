@@ -1,0 +1,33 @@
+import SwiftUI
+
+struct DynamicListHeightView: View {
+    let items = Array(1...20)
+    @State private var totalHeight: CGFloat = 0
+
+    var body: some View {
+        VStack {
+            Text("Total Height: \(totalHeight, specifier: "%.0f")")
+                .padding()
+
+            List {
+                ForEach(items, id: \.self) { item in
+                    RowView(item: item)
+                        .background(GeometryReader { geo in
+                            Color.clear
+                                .onAppear {
+                                    totalHeight += geo.size.height
+                                }
+                        })
+                }
+            }
+        }
+    }
+}
+
+struct RowView: View {
+    let item: Int
+    var body: some View {
+        Text("Item \(item)")
+            .padding()
+    }
+}
