@@ -1,0 +1,51 @@
+import SwiftUI
+
+struct ContentView: View {
+    @StateObject private var viewModel = ViewModel()
+
+    var body: some View {
+        List {
+            ForEach(viewModel.items, id: \.self) { item in
+                Text(item)
+                    .onAppear {
+                        if item == viewModel.items.last {
+                            viewModel.fetchData() // Load next page
+                        }
+                    }
+            }
+
+            if viewModel.isLoading {
+                ProgressView()
+            }
+        }
+        .onAppear {
+            viewModel.fetchData() // Initial load
+        }
+    }
+}
+
+class ViewModel: ObservableObject {
+    @Published var items: [String] = []
+    @Published var isLoading = false
+
+    private var currentPage = 1
+    private let pageSize = 20
+    private var canLoadMorePages = true
+
+    func fetchData() {
+        guard !isLoading, canLoadMorePages else { return }
+
+        isLoading = true
+        let newItems = (1...pageSize).map { "Item \((currentPage - 1) * pageSize + $0)" }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { // Simulate API delay
+            self.items.append(contentsOf: newItems)
+            self.isLoading = false
+            self.currentPage += 1
+
+            if newItems.count < self.pageSize { // No more pages
+                self.canLoadMorePages = false
+            }
+        }
+    }
+}
