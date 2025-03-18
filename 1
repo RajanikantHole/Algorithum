@@ -1,36 +1,62 @@
 import SwiftUI
 import UIKit
 
-// Step 1: Create a SwiftUI wrapper for UIActivityViewController
-struct ActivityViewController: UIViewControllerRepresentable {
-    let items: [Any]
+// Step 1: Define the Custom UIActivityItemSource
+class CustomActivityItemSource: NSObject, UIActivityItemSource {
+    var parameter: String
     
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        return UIActivityViewController(activityItems: items, applicationActivities: nil)
+    init(parameter: String) {
+        self.parameter = parameter
     }
     
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return "Placeholder text"
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        return "Shared data with parameter: \(parameter)"
+    }
 }
 
-struct ContentView: View {
-    let image = UIImage(named: "yourImageName.png")!
-    let text = "This is a header message or description for your image"
+// Step 2: Create the SwiftUI UIViewControllerRepresentable
+struct ActivityView: UIViewControllerRepresentable {
+    var activityItems: [Any]
+    var excludedActivityTypes: [UIActivity.ActivityType]?
     
-    @State private var showActivityView = false
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        activityViewController.excludedActivityTypes = excludedActivityTypes
+        return activityViewController
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // No update logic required for this example
+    }
+}
+
+// Step 3: Use the ActivityView in SwiftUI
+struct ContentView: View {
+    @State private var isSharing = false
     
     var body: some View {
         VStack {
             Button("Share") {
-                showActivityView.toggle()
+                let itemSource = CustomActivityItemSource(parameter: "My Custom Parameter")
+                isSharing = true
             }
-            .sheet(isPresented: $showActivityView) {
-                // Step 2: Pass the items to be shared (text + image)
-                ActivityViewController(items: [text, image])
+            .sheet(isPresented: $isSharing) {
+                let itemSource = CustomActivityItemSource(parameter: "My Custom Parameter")
+                ActivityView(
+                    activityItems: [itemSource],
+                    excludedActivityTypes: [.addToReadingList, .postToFacebook]
+                )
             }
         }
+        .padding()
     }
 }
 
+// Step 4: App Entry Point
 @main
 struct MyApp: App {
     var body: some Scene {
