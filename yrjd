@@ -1,65 +1,51 @@
 import SwiftUI
-import Combine
+import UIKit
+import LinkPresentation
 
-class ViewModelA: ObservableObject {
-    @Published var text: String = "Initial A Text"
-}
+// MARK: - ShareSheetView
+struct ShareSheetView: UIViewControllerRepresentable {
+    var shareableImage: [ShareActivityItem]
 
-class ViewModelB: ObservableObject {
-    @Published var updatedText: String = "Initial B Text"
-    private var cancellables = Set<AnyCancellable>()
-    
-    init(viewModelA: ViewModelA) {
-        viewModelA.$text
-            .sink { [weak self] newValue in
-                self?.updatedText = "From A: \(newValue)"
-            }
-            .store(in: &cancellables)
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let activityVC = UIActivityViewController(activityItems: shareableImage, applicationActivities: nil)
+        activityVC.excludedActivityTypes = [.postToFacebook]
+        return activityVC
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // Nothing to update
     }
 }
 
-struct UIKitLabelView: UIViewRepresentable {
-    var text: String
+// MARK: - ShareActivityItem
+final class ShareActivityItem: NSObject, UIActivityItemSource {
+    private let image: UIImage
+    private let title: String
+    private let subtitle: String?
 
-    func makeUIView(context: Context) -> UILabel {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 18)
-        return label
+    init(image: UIImage, title: String, subtitle: String? = nil) {
+        self.image = image
+        self.title = title
+        self.subtitle = subtitle
+        super.init()
     }
 
-    func updateUIView(_ uiView: UILabel, context: Context) {
-        uiView.text = text
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return title
     }
-}
 
-struct ContentView: View {
-    @StateObject private var viewModelA = ViewModelA()
-    @StateObject private var viewModelB: ViewModelB
-    
-    init() {
-        let vmA = ViewModelA()
-        _viewModelA = StateObject(wrappedValue: vmA)
-        _viewModelB = StateObject(wrappedValue: ViewModelB(viewModelA: vmA))
+    func activityViewController(_ activityViewController: UIActivityViewController,
+                                itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        return image
     }
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            TextField("Update A's text", text: $viewModelA.text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
 
-            Text("ViewModel B sees: \(viewModelB.updatedText)")
-                .padding()
-
-            UIKitLabelView(text: viewModelB.updatedText)
-                .frame(height: 50)
-                .border(Color.gray)
+    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
+        let metadata = LPLinkMetadata()
+        metadata.iconProvider = NSItemProvider(object: image)
+        metadata.title = title
+        if let subtitle = subtitle {
+            metadata.originalURL = URL(fileURLWithPath: subtitle)
         }
-        .padding()
+        return metadata
     }
-}
-
-#Preview {
-    ContentView()
 }
