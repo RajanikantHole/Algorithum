@@ -1,67 +1,49 @@
 import SwiftUI
-import UIKit
+import Combine
 
-// Step 1: Define the Custom UIActivityItemSource
-class CustomActivityItemSource: NSObject, UIActivityItemSource {
-    var parameter: String
-    
-    init(parameter: String) {
-        self.parameter = parameter
+// Child ViewModel
+class ChildViewModel: ObservableObject {
+    @Published var childText: String = "" {
+        didSet {
+            onTextChanged?(childText)
+        }
     }
-    
-    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-        return "Placeholder text"
-    }
-    
-    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-        return "Shared data with parameter: \(parameter)"
+
+    // Callback for notifying parent
+    var onTextChanged: ((String) -> Void)?
+}
+
+// Parent ViewModel
+class ParentViewModel: ObservableObject {
+    @Published var receivedText: String = "Waiting for child..."
+
+    let childVM = ChildViewModel()
+
+    init() {
+        // Connect child's callback to parent's handler
+        childVM.onTextChanged = { [weak self] newText in
+            self?.receivedText = "Received: \(newText)"
+        }
     }
 }
 
-// Step 2: Create the SwiftUI UIViewControllerRepresentable
-struct ActivityView: UIViewControllerRepresentable {
-    var activityItems: [Any]
-    var excludedActivityTypes: [UIActivity.ActivityType]?
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        activityViewController.excludedActivityTypes = excludedActivityTypes
-        return activityViewController
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
-        // No update logic required for this example
-    }
-}
-
-// Step 3: Use the ActivityView in SwiftUI
+// SwiftUI View
 struct ContentView: View {
-    @State private var isSharing = false
-    
+    @StateObject private var parentVM = ParentViewModel()
+
     var body: some View {
-        VStack {
-            Button("Share") {
-                let itemSource = CustomActivityItemSource(parameter: "My Custom Parameter")
-                isSharing = true
-            }
-            .sheet(isPresented: $isSharing) {
-                let itemSource = CustomActivityItemSource(parameter: "My Custom Parameter")
-                ActivityView(
-                    activityItems: [itemSource],
-                    excludedActivityTypes: [.addToReadingList, .postToFacebook]
-                )
-            }
+        VStack(spacing: 20) {
+            Text("Parent ViewModel: \(parentVM.receivedText)")
+                .padding()
+
+            TextField("Type in Child", text: $parentVM.childVM.childText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
         }
         .padding()
     }
 }
 
-// Step 4: App Entry Point
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
+#Preview {
+    ContentView()
 }
