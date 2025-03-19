@@ -1,33 +1,65 @@
 import SwiftUI
+import Combine
 
-struct DynamicListHeightView: View {
-    let items = Array(1...20)
-    @State private var totalHeight: CGFloat = 0
+class ViewModelA: ObservableObject {
+    @Published var text: String = "Initial A Text"
+}
 
-    var body: some View {
-        VStack {
-            Text("Total Height: \(totalHeight, specifier: "%.0f")")
-                .padding()
-
-            List {
-                ForEach(items, id: \.self) { item in
-                    RowView(item: item)
-                        .background(GeometryReader { geo in
-                            Color.clear
-                                .onAppear {
-                                    totalHeight += geo.size.height
-                                }
-                        })
-                }
+class ViewModelB: ObservableObject {
+    @Published var updatedText: String = "Initial B Text"
+    private var cancellables = Set<AnyCancellable>()
+    
+    init(viewModelA: ViewModelA) {
+        viewModelA.$text
+            .sink { [weak self] newValue in
+                self?.updatedText = "From A: \(newValue)"
             }
-        }
+            .store(in: &cancellables)
     }
 }
 
-struct RowView: View {
-    let item: Int
-    var body: some View {
-        Text("Item \(item)")
-            .padding()
+struct UIKitLabelView: UIViewRepresentable {
+    var text: String
+
+    func makeUIView(context: Context) -> UILabel {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 18)
+        return label
     }
+
+    func updateUIView(_ uiView: UILabel, context: Context) {
+        uiView.text = text
+    }
+}
+
+struct ContentView: View {
+    @StateObject private var viewModelA = ViewModelA()
+    @StateObject private var viewModelB: ViewModelB
+    
+    init() {
+        let vmA = ViewModelA()
+        _viewModelA = StateObject(wrappedValue: vmA)
+        _viewModelB = StateObject(wrappedValue: ViewModelB(viewModelA: vmA))
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            TextField("Update A's text", text: $viewModelA.text)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+
+            Text("ViewModel B sees: \(viewModelB.updatedText)")
+                .padding()
+
+            UIKitLabelView(text: viewModelB.updatedText)
+                .frame(height: 50)
+                .border(Color.gray)
+        }
+        .padding()
+    }
+}
+
+#Preview {
+    ContentView()
 }
