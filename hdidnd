@@ -1,50 +1,73 @@
 import SwiftUI
+import UIKit
+import LinkPresentation
 
-struct ContentView: View {
-    @StateObject private var viewModel = ViewModel()
+// MARK: - ShareSheetView
+struct ShareSheetView: UIViewControllerRepresentable {
+    var shareableImage: [ShareActivityItem]
 
-    var body: some View {
-        List {
-            ForEach(viewModel.items, id: \.self) { item in
-                Text(item)
-                    .onAppear {
-                        if item == viewModel.items.last {
-                            viewModel.fetchData() // Load next page
-                        }
-                    }
-            }
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let activityVC = UIActivityViewController(activityItems: shareableImage, applicationActivities: nil)
+        activityVC.excludedActivityTypes = [.postToFacebook]
+        return activityVC
+    }
 
-            if viewModel.isLoading {
-                ProgressView()
-            }
-        }
-        .onAppear {
-            viewModel.fetchData() // Initial load
-        }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // Nothing to update
     }
 }
 
-class ViewModel: ObservableObject {
-    @Published var items: [String] = []
-    @Published var isLoading = false
+// MARK: - ShareActivityItem
+final class ShareActivityItem: NSObject, UIActivityItemSource {
+    private let image: UIImage
+    private let title: String
+    private let subtitle: String?
 
-    private var currentPage = 1
-    private let pageSize = 20
-    private var canLoadMorePages = true
+    init(image: UIImage, title: String, subtitle: String? = nil) {
+        self.image = image
+        self.title = title
+        self.subtitle = subtitle
+        super.init()
+    }
 
-    func fetchData() {
-        guard !isLoading, canLoadMorePages else { return }
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return title
+    }
 
-        isLoading = true
-        let newItems = (1...pageSize).map { "Item \((currentPage - 1) * pageSize + $0)" }
+    func activityViewController(_ activityViewController: UIActivityViewController,
+                                itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        return "blnknlk"
+    }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { // Simulate API delay
-            self.items.append(contentsOf: newItems)
-            self.isLoading = false
-            self.currentPage += 1
+    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
+        let metadata = LPLinkMetadata()
+        metadata.iconProvider = NSItemProvider(object: image)
+        metadata.title = title
+        if let subtitle = subtitle {
+            metadata.originalURL = URL(fileURLWithPath: subtitle)
+        }
+        return metadata
+    }
+}
 
-            if newItems.count < self.pageSize { // No more pages
-                self.canLoadMorePages = false
+
+struct ContentView2: View {
+    @State private var showShareSheet = false
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Button("Share Image") {
+                showShareSheet = true
+            }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let image = UIImage(systemName: "star.fill") {
+                let item = ShareActivityItem(image: image, title: "Star Image", subtitle: "Optional subtitle or URL")
+                ShareSheetView(shareableImage: [item])
             }
         }
     }
