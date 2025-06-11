@@ -1,44 +1,26 @@
-import SwiftUI
-
-struct DatePickerButtonView: View {
-    @State private var selectedDate = Date()
-    @State private var showingDatePicker = false
-
-    var body: some View {
-        VStack {
-            Button(action: {
-                showingDatePicker = true
-            }) {
-                Text(dateString)
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(8)
+func minDeletions(_ arr: [Int]) -> Int {
+    let n = arr.count
+    if n <= 2 { return 0 } // 0 deletions needed if array has 2 or fewer elements
+    
+    var count = 0
+    
+    for i in 1..<n {
+        if arr[i] < arr[i - 1] {
+            count += 1
+            // If more than 1 violation, need to remove at least 2 to make it "almost sorted"
+            if count > 1 {
+                return 2
             }
-        }
-        .sheet(isPresented: $showingDatePicker) {
-            VStack {
-                DatePicker("Select Date", selection: $selectedDate, displayedComponents: [.date])
-                    .datePickerStyle(GraphicalDatePickerStyle())
-                    .padding()
-
-                Button("Done") {
-                    showingDatePicker = false
+            // Check if removing arr[i-1] or arr[i] solves the problem
+            if i >= 2 && arr[i] < arr[i - 2] {
+                // Remove arr[i]
+                if i+1 < n && arr[i+1] < arr[i-1] {
+                    // Even removing arr[i] can't fix the order, so need to remove at least 2
+                    return 2
                 }
-                .padding()
             }
         }
     }
-
-    var dateString: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: selectedDate)
-    }
-}
-
-struct DatePickerButtonView_Previews: PreviewProvider {
-    static var previews: some View {
-        DatePickerButtonView()
-    }
+    
+    return count
 }
