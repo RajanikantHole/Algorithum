@@ -1,49 +1,26 @@
-import SwiftUI
-import Combine
-
-// Child ViewModel
-class ChildViewModel: ObservableObject {
-    @Published var childText: String = "" {
-        didSet {
-            onTextChanged?(childText)
+func minDeletions(_ arr: [Int]) -> Int {
+    let n = arr.count
+    if n <= 2 { return 0 } // 0 deletions needed if array has 2 or fewer elements
+    
+    var count = 0
+    
+    for i in 1..<n {
+        if arr[i] < arr[i - 1] {
+            count += 1
+            // If more than 1 violation, need to remove at least 2 to make it "almost sorted"
+            if count > 1 {
+                return 2
+            }
+            // Check if removing arr[i-1] or arr[i] solves the problem
+            if i >= 2 && arr[i] < arr[i - 2] {
+                // Remove arr[i]
+                if i+1 < n && arr[i+1] < arr[i-1] {
+                    // Even removing arr[i] can't fix the order, so need to remove at least 2
+                    return 2
+                }
+            }
         }
     }
-
-    // Callback for notifying parent
-    var onTextChanged: ((String) -> Void)?
-}
-
-// Parent ViewModel
-class ParentViewModel: ObservableObject {
-    @Published var receivedText: String = "Waiting for child..."
-
-    let childVM = ChildViewModel()
-
-    init() {
-        // Connect child's callback to parent's handler
-        childVM.onTextChanged = { [weak self] newText in
-            self?.receivedText = "Received: \(newText)"
-        }
-    }
-}
-
-// SwiftUI View
-struct ContentView: View {
-    @StateObject private var parentVM = ParentViewModel()
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Parent ViewModel: \(parentVM.receivedText)")
-                .padding()
-
-            TextField("Type in Child", text: $parentVM.childVM.childText)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-        }
-        .padding()
-    }
-}
-
-#Preview {
-    ContentView()
+    
+    return count
 }
