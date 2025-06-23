@@ -36,5 +36,29 @@ func rec(str: String) -> String {
 
 let rec3 = rec(str: stringREv)
 
+var paliofron  = "abarba"
 
-print(" rec \(rec3)")
+
+var strCnt = paliofron.count
+while strCnt > 0 {
+    
+    let firstChar = paliofron.first
+    let lastChar = paliofron.last
+    paliofron = String(paliofron.dropLast())
+    paliofron = String(paliofron.dropFirst())
+    strCnt = paliofron.count
+    
+//    print("while strCnt \(strCnt)")
+    if paliofron.first == paliofron.last {
+        continue
+    } else {
+        print("Char not eqaul")
+        break
+    }
+    
+}
+
+print("strCnt \(strCnt)")
+if strCnt == 1 || strCnt == 0 {
+    print("Char  eqaul")
+}
