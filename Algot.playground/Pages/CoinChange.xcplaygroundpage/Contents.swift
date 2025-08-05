@@ -1,10 +1,10 @@
 
 
-let coinsDemo = [1,2,3]
-let SumCoin = 5
+let coinsDemo = [1, 3, 4]
+let SumCoin = 27
 
 let maxCoinsExachne = Int.max
-func minCoinsRequires(remaining: Int) -> {
+func minCoinsRequires(remaining: Int) -> Int {
     
     if remaining == 0 {
         return 0
@@ -21,7 +21,7 @@ func minCoinsRequires(remaining: Int) -> {
         let resultSub = minCoinsRequires(remaining: remaining - coin)
          
         if resultSub != maxCoinsExachne {
-            minCoinsReq = min(maxCoinsExachne<#T##T#>, resultSub + 1)
+            minCoinsReq = min(minCoinsReq, resultSub + 1)
         }
     }
     return minCoinsReq
