@@ -1,35 +1,25 @@
-func isPalindrome(_ string: String) -> Bool {
-    let filteredString = string.lowercased().filter { $0.isLetter }
-    return filteredString == String(filteredString.reversed())
-}
+func longestCommonPrefix(_ strs: [String]) -> String {
+    guard var prefix = strs.first else {
+        return ""
+    }
 
-func temp(_ str: String) -> Bool {
-    let op1 = str.lowercased().filter{ $0.isLetter }
-    return op1 == String(op1.reversed())
-}
-// Test Cases
-print(temp("madam")) // true
-print(isPalindrome("racecar")) // true
-print(isPalindrome("hello")) // false
-print(isPalindrome("A man, a plan, a canal: Panama")) // true
-
-func removeDuplicates(from str: String) -> String {
-    
-    var sett: Set<Character> = []
-    
-    return str.filter { chr in
+    for str in strs.dropFirst() {
         
-        if sett.contains(chr) {
-            return false
-        } else {
-            sett.insert(chr)
-            return true
+
+        while !str.hasPrefix(prefix) {
+          //  print("prefix  \(prefix)")
+           // print("str \(str)")
+            
+            prefix = String(prefix.dropLast())
+           // print("next prefix  \(prefix)")
+            if prefix.isEmpty {
+                return ""
+            }
         }
     }
 
+    return prefix
 }
 
-// Test Cases
-print(removeDuplicates(from: "swiss")) // "swi"
-print(removeDuplicates(from: "hello")) // "helo"
-print(removeDuplicates(from: "programming")) // "progamin"
+let words = ["flower", "falow", "flight"]
+//print(longestCommonPrefix(words))  // Output: "fl"

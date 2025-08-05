@@ -15,6 +15,13 @@
         <page name='makeSingleArray'/>
         <page name='Untitled Page 2'/>
         <page name='rotateArray'/>
-        <page name='Untitled Page'/>
+        <page name='LongestSubstring WithoutRepeatingCharacters'/>
+        <page name='LongestSubstring'/>
+        <page name='LongestPalidromSeq'/>
+        <page name='SubarryOfSumss'/>
+        <page name='StringReverse'/>
+        <page name='Paliodrom'/>
+        <page name='arrayLogestInresingsub'/>
+        <page name='CoinChange'/>
     </pages>
 </playground>
