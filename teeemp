@@ -1,0 +1,213 @@
+//
+//  ContentView.swift
+//
+
+import SwiftUI
+import SwiftData
+
+// -------------------------------------------------------------
+// MARK: - SwiftData Entity (Data Layer)
+// -------------------------------------------------------------
+
+@Model
+class TaskEntity {
+    @Attribute(.unique) var id: UUID
+    var title: String
+    var createdAt: Date
+    
+    init(id: UUID = UUID(), title: String) {
+        self.id = id
+        self.title = title
+        self.createdAt = Date()
+    }
+}
+
+// -------------------------------------------------------------
+// MARK: - Domain Model
+// -------------------------------------------------------------
+
+struct TaskModel: Identifiable {
+    let id: UUID
+    let title: String
+    let createdAt: Date
+}
+
+// -------------------------------------------------------------
+// MARK: - Repository Protocol (Domain)
+// -------------------------------------------------------------
+
+protocol TaskRepository {
+    func addTask(title: String) throws
+    func getTasks() throws -> [TaskModel]
+    func deleteTask(id: UUID) throws
+    func updateTask(id: UUID, title: String) throws
+}
+
+// -------------------------------------------------------------
+// MARK: - Repository Implementation (Data Layer)
+// -------------------------------------------------------------
+
+class TaskRepositoryImpl: TaskRepository {
+    
+    private let context: ModelContext
+    
+    init(context: ModelContext) {
+        self.context = context
+    }
+    
+    func addTask(title: String) throws {
+        context.insert(TaskEntity(title: title))
+        try context.save()
+    }
+    
+    func getTasks() throws -> [TaskModel] {
+        let items = try context.fetch(FetchDescriptor<TaskEntity>())
+        return items.map { TaskModel(id: $0.id, title: $0.title, createdAt: $0.createdAt) }
+    }
+    
+    func deleteTask(id: UUID) throws {
+        let descriptor = FetchDescriptor<TaskEntity>(predicate: #Predicate { $0.id == id })
+        if let task = try context.fetch(descriptor).first {
+            context.delete(task)
+            try context.save()
+        }
+    }
+    
+    func updateTask(id: UUID, title: String) throws {
+        let descriptor = FetchDescriptor<TaskEntity>(predicate: #Predicate { $0.id == id })
+        if let task = try context.fetch(descriptor).first {
+            task.title = title
+            try context.save()
+        }
+    }
+}
+
+// -------------------------------------------------------------
+// MARK: - Use Cases (Domain)
+// -------------------------------------------------------------
+
+struct AddTaskUseCase {
+    let repo: TaskRepository
+    func callAsFunction(title: String) throws { try repo.addTask(title: title) }
+}
+
+struct GetTasksUseCase {
+    let repo: TaskRepository
+    func callAsFunction() throws -> [TaskModel] { try repo.getTasks() }
+}
+
+struct DeleteTaskUseCase {
+    let repo: TaskRepository
+    func callAsFunction(id: UUID) throws { try repo.deleteTask(id: id) }
+}
+
+struct UpdateTaskUseCase {
+    let repo: TaskRepository
+    func callAsFunction(id: UUID, title: String) throws { try repo.updateTask(id: id, title: title) }
+}
+
+// -------------------------------------------------------------
+// MARK: - ViewModel (Presentation Layer)
+// -------------------------------------------------------------
+
+@Observable
+class TaskViewModel {
+    
+    private let addTaskUC: AddTaskUseCase
+    private let getTasksUC: GetTasksUseCase
+    private let deleteTaskUC: DeleteTaskUseCase
+    private let updateTaskUC: UpdateTaskUseCase
+    
+    init(repo: TaskRepository) {
+        self.addTaskUC = AddTaskUseCase(repo: repo)
+        self.getTasksUC = GetTasksUseCase(repo: repo)
+        self.deleteTaskUC = DeleteTaskUseCase(repo: repo)
+        self.updateTaskUC = UpdateTaskUseCase(repo: repo)
+    }
+    
+    var tasks: [TaskModel] = []
+    
+    func load() {
+        tasks = (try? getTasksUC()) ?? []
+    }
+    
+    func add(_ title: String) {
+        try? addTaskUC(title: title)
+        load()
+    }
+    
+    func delete(_ id: UUID) {
+        try? deleteTaskUC(id: id)
+        load()
+    }
+    
+    func update(_ id: UUID, title: String) {
+        try? updateTaskUC(id: id, title: title)
+        load()
+    }
+}
+
+// -------------------------------------------------------------
+// MARK: - SwiftUI View
+// -------------------------------------------------------------
+
+struct ContentView: View {
+    
+    @Environment(\.modelContext) private var context
+    @State private var viewModel: TaskViewModel?
+    
+    @State private var newTask = ""
+    
+    var body: some View {
+        VStack {
+            
+            // Add Task UI
+            HStack {
+                TextField("Enter task", text: $newTask)
+                    .textFieldStyle(.roundedBorder)
+                
+                Button("Add") {
+                    viewModel?.add(newTask)
+                    newTask = ""
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+            
+            // Task List
+            List {
+                ForEach(viewModel?.tasks ?? []) { task in
+                    HStack {
+                        Text(task.title)
+                        Spacer()
+                        Button("Delete") {
+                            viewModel?.delete(task.id)
+                        }
+                        .foregroundColor(.red)
+                    }
+                }
+            }
+        }
+        .onAppear {
+            if viewModel == nil {
+                let repo = TaskRepositoryImpl(context: context)
+                viewModel = TaskViewModel(repo: repo)
+                viewModel?.load()
+            }
+        }
+    }
+}
+
+// -------------------------------------------------------------
+// MARK: - App Entry
+// -------------------------------------------------------------
+
+@main
+struct SingleShotCleanArchitectureApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .modelContainer(for: TaskEntity.self)
+    }
+}
